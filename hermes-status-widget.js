@@ -615,7 +615,6 @@ function buildLarge(data) {
     // Info principal
     const info = card.addStack();
     info.layoutVertically();
-    info.size = new Size(0, 0);
 
     const labelRow = info.addStack();
     labelRow.layoutHorizontally();
