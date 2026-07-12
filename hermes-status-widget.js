@@ -253,38 +253,9 @@ function addBar(w, label, pct, color) {
   row.addSpacer(4);
 }
 
-function addChipRow(parent, items) {
-  const row = parent.addStack();
-  row.layoutHorizontally();
-  row.addSpacer(4);
-  items.forEach((item, i) => {
-    const chip = row.addStack();
-    chip.layoutHorizontally();
-    chip.centerAlignContent();
-    chip.backgroundColor = item.bgColor || C.surface2;
-    chip.cornerRadius = 4;
-    chip.addSpacer(4);
-    const d = chip.addText(item.text || "\u25CF");
-    d.font = Font.systemFont(item.fontSize || 7);
-    d.textColor = item.color || C.textDim;
-    chip.addSpacer(4);
-    if (i < items.length - 1) row.addSpacer(4);
-  });
-  row.addSpacer(4);
-}
-
 // ──────────────────────────────────────────────────────────────────────────────
-// SECCIÓN: CRON JOBS (compartida por todos los tamaños)
+// TARJETA DE CRON JOB (usada en Medium)
 // ──────────────────────────────────────────────────────────────────────────────
-
-function buildCronRow(cronJobs) {
-  // Retorna un widget Stack con los 3 cron jobs en fila
-  // Se usa dentro del widget principal
-  const outer = cronJobs; // Ya recibimos el array
-
-  // Nota: Esta función construye filas para ser añadidas al widget.
-  // Se llama desde cada build* y añade directamente las stacks al widget.
-}
 
 function addCronJobCard(parent, job) {
   // Añade una tarjeta individual de cron job al widget
@@ -565,127 +536,7 @@ function buildLarge(data) {
   w.addSpacer(6);
 
   // ════════════════════════════════════════════════════════════
-  // SECCIÓN: PROYECTOS FULL-STACK (CRON JOBS)
-  // ════════════════════════════════════════════════════════════
-  const cronSection = w.addStack();
-  cronSection.layoutHorizontally();
-  cronSection.addSpacer(4);
-
-  // Título de sección
-  const secTitle = w.addStack();
-  secTitle.layoutHorizontally();
-  secTitle.addSpacer(4);
-  const secIcon = secTitle.addText("📋");
-  secIcon.font = Font.systemFont(12);
-  secTitle.addSpacer(6);
-  const secLabel = secTitle.addText("Proyectos Full-Stack del Día");
-  secLabel.font = Font.boldSystemFont(12);
-  secLabel.textColor = C.text;
-  secTitle.addSpacer();
-  const allDone = cronJobs.every(j => j.status === "done");
-  const secBadge = secTitle.addText(allDone ? "✅ Todo OK" : "⏳ En progreso");
-  secBadge.font = Font.boldSystemFont(9);
-  secBadge.textColor = allDone ? C.green : C.yellow;
-  secTitle.addSpacer(4);
-
-  w.addSpacer(6);
-
-  // Tarjetas de cron jobs (una por fila, con más detalle)
-  cronJobs.forEach((job, i) => {
-    const card = w.addStack();
-    card.layoutHorizontally();
-    card.centerAlignContent();
-    card.backgroundColor = C.surface;
-    card.cornerRadius = 10;
-    card.setPadding(8, 10, 8, 10);
-
-    // Barra de estado izquierda
-    const bar = card.addStack();
-    bar.size = new Size(4, 32);
-    bar.cornerRadius = 2;
-    bar.backgroundColor = job.props.color;
-
-    card.addSpacer(10);
-
-    // Indicador grande
-    const indicator = card.addText(job.props.sym);
-    indicator.font = Font.systemFont(22);
-    card.addSpacer(8);
-
-    // Info principal
-    const info = card.addStack();
-    info.layoutVertically();
-
-    const labelRow = info.addStack();
-    labelRow.layoutHorizontally();
-    labelRow.centerAlignContent();
-    const jobLabel = labelRow.addText(job.label);
-    jobLabel.font = Font.boldSystemFont(13);
-    jobLabel.textColor = C.text;
-    labelRow.addSpacer(6);
-
-    // Badge de perfil (si existe)
-    if (job.profile) {
-      const profileBadge = labelRow.addStack();
-      profileBadge.layoutHorizontally();
-      profileBadge.centerAlignContent();
-      profileBadge.backgroundColor = C.surface2;
-      profileBadge.cornerRadius = 3;
-      profileBadge.setPadding(1, 4, 1, 4);
-      const pLabel = profileBadge.addText(job.profile);
-      pLabel.font = Font.systemFont(7);
-      pLabel.textColor = C.textMuted;
-    }
-
-    card.addSpacer(4);
-
-    // Info adicional
-    const metaRow = info.addStack();
-    metaRow.layoutHorizontally();
-    metaRow.centerAlignContent();
-
-    const runTime = metaRow.addText(fmtLastRun(job.lastRunAt));
-    runTime.font = Font.systemFont(9);
-    runTime.textColor = C.textDim;
-
-    metaRow.addSpacer(6);
-
-    // Estado con color
-    const statusBadge = metaRow.addStack();
-    statusBadge.layoutHorizontally();
-    statusBadge.centerAlignContent();
-    statusBadge.backgroundColor = job.props.bgColor;
-    statusBadge.cornerRadius = 4;
-    statusBadge.setPadding(1, 5, 1, 5);
-    const sLabel = statusBadge.addText(job.props.label);
-    sLabel.font = Font.boldSystemFont(8);
-    sLabel.textColor = job.props.color;
-
-    // Si falló, mostrar error
-    if (job.status === "failed" && job.lastError) {
-      card.addSpacer(4);
-      const errBadge = card.addStack();
-      errBadge.layoutHorizontally();
-      errBadge.centerAlignContent();
-      errBadge.backgroundColor = C.redDim;
-      errBadge.cornerRadius = 3;
-      errBadge.setPadding(1, 4, 1, 4);
-      const eLabel = errBadge.addText(shorten(job.lastError, 25));
-      eLabel.font = Font.systemFont(7);
-      eLabel.textColor = C.red;
-    }
-
-    card.addSpacer(4);
-
-    if (i < cronJobs.length - 1) w.addSpacer(4);
-  });
-
-  w.addSpacer(8);
-  addDivider(w);
-  w.addSpacer(6);
-
-  // ════════════════════════════════════════════════════════════
-  // KPI METRICS (métricas rápidas)
+  // KPI METRICS (métricas rápidas)  —  ANTES de los cron jobs
   // ════════════════════════════════════════════════════════════
   const kwic = w.addStack();
   kwic.layoutHorizontally();
@@ -726,6 +577,90 @@ function buildLarge(data) {
   });
   kwic.addSpacer(4);
 
+  w.addSpacer(6);
+
+  // ════════════════════════════════════════════════════════════
+  // CRON JOBS COMPACTOS  (después de KPI, antes de Sistema)
+  // ════════════════════════════════════════════════════════════
+  const cronTitle = w.addStack();
+  cronTitle.layoutHorizontally();
+  cronTitle.addSpacer(4);
+  const cronIcon = cronTitle.addText("📋");
+  cronIcon.font = Font.systemFont(10);
+  cronTitle.addSpacer(5);
+  const cronLabel = cronTitle.addText("Proyectos del día");
+  cronLabel.font = Font.boldSystemFont(11);
+  cronLabel.textColor = C.textDim;
+  cronTitle.addSpacer();
+  const allDone = cronJobs.every(j => j.status === "done");
+  const cronBadgeText = allDone ? "✅ Completados" : `✅${cronJobs.filter(j=>j.status==="done").length} ⏰${cronJobs.filter(j=>j.status==="pending").length} ❌${cronJobs.filter(j=>j.status==="failed").length}`;
+  const cronBadge = cronTitle.addText(cronBadgeText);
+  cronBadge.font = Font.systemFont(8);
+  cronBadge.textColor = allDone ? C.green : C.textMuted;
+  cronTitle.addSpacer(4);
+
+  w.addSpacer(4);
+
+  // Fila única compacta con los 3 cron jobs lado a lado
+  const cronRow = w.addStack();
+  cronRow.layoutHorizontally();
+  cronRow.addSpacer(4);
+  cronJobs.forEach((job, i) => {
+    const chip = cronRow.addStack();
+    chip.layoutHorizontally();
+    chip.centerAlignContent();
+    chip.backgroundColor = C.surface;
+    chip.cornerRadius = 7;
+    chip.setPadding(5, 7, 5, 7);
+
+    const sym = chip.addText(job.props.sym);
+    sym.font = Font.systemFont(9);
+
+    chip.addSpacer(4);
+
+    const infoCol = chip.addStack();
+    infoCol.layoutVertically();
+
+    const nameRow = infoCol.addStack();
+    nameRow.layoutHorizontally();
+    nameRow.centerAlignContent();
+    const nLabel = nameRow.addText(job.label);
+    nLabel.font = Font.mediumSystemFont(9);
+    nLabel.textColor = C.text;
+    nameRow.addSpacer(4);
+
+    const metaRow = infoCol.addStack();
+    metaRow.layoutHorizontally();
+    metaRow.centerAlignContent();
+    const tLabel = metaRow.addText(fmtLastRun(job.lastRunAt));
+    tLabel.font = Font.systemFont(7);
+    tLabel.textColor = C.textMuted;
+    metaRow.addSpacer(4);
+    if (job.profile) {
+      const pBadge = metaRow.addText(job.profile);
+      pBadge.font = Font.systemFont(6);
+      pBadge.textColor = C.textUltra;
+    }
+
+    chip.addSpacer(null);
+
+    // Etiqueta de estado compacta
+    const statusBadge = chip.addStack();
+    statusBadge.layoutHorizontally();
+    statusBadge.centerAlignContent();
+    statusBadge.backgroundColor = job.props.bgColor;
+    statusBadge.cornerRadius = 3;
+    statusBadge.setPadding(1, 4, 1, 4);
+    const sLabel = statusBadge.addText(job.props.label);
+    sLabel.font = Font.boldSystemFont(7);
+    sLabel.textColor = job.props.color;
+
+    if (i < cronJobs.length - 1) cronRow.addSpacer(3);
+  });
+  cronRow.addSpacer(4);
+
+  w.addSpacer(6);
+  addDivider(w);
   w.addSpacer(6);
 
   // ════════════════════════════════════════════════════════════
