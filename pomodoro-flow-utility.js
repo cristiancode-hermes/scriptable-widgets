@@ -1,66 +1,13 @@
-// Variables used by Scriptable.
-// These must be at the very top of the file; do not edit.
-// icon-color: indigo; icon-glyph: timer;
 
-// =============================================================================
-// 🍅 POMODORO FLOW UTILITY  —  Scriptable Utility para iOS / iPadOS
-// =============================================================================
-// Una utilidad de productividad que combina un gestor de tareas con un
-// temporizador Pomodoro completo. Ideal para sesiones de focus profundo.
-//
-// ✅ Permisos iOS requeridos:
-//   • Notificaciones → Settings > Scriptable > Notifications (Permitir)
-//     Esencial para alertas de fin de Pomodoro y descansos.
-//   • Calendarios   → Settings > Scriptable > Calendars (Leer)
-//     Opcional — para sincronizar tareas con eventos del día.
-//   • Recordatorios → Settings > Scriptable > Reminders (Leer/Escribir)
-//     Opcional — para exportar tareas a la app Recordatorios.
-//   • Red           → Datos móviles/WiFi (solo si usas APIs externas)
-//   • Compartir     → Settings > Scriptable > Share Sheet (Opcional)
-//     Para añadir tareas rápido desde cualquier app vía Share Sheet.
-//
-// 📐 Cómo usarlo:
-//   1. Abre la app Scriptable → pulsa "+" → pega este script
-//   2. Ejecútalo directamente (play) para abrir la interfaz completa
-//   3. Como widget (opcional): añade widget Scriptable → elige tamaño
-//      • Small:  muestra la sesión activa + próxima tarea + contador
-//      • Medium: tareas del día + progreso pomodoro + stats rápidas
-//      • Large:  lista completa + timer + estadísticas detalladas
-//   4. Parámetro del widget (opcional, separado por pipe | ):
-//      • "work=25|break=5|long=15|cycles=4"
-//        → work: minutos de enfoque (default 25)
-//        → break: minutos de descanso corto (default 5)
-//        → long: minutos de descanso largo (default 15)
-//        → cycles: número de ciclos antes de descanso largo (default 4)
-//        → filter: "today"|"all"|"pending" (default "today")
-//   5. Atajo de Siri: puedes crear un acceso directo en Shortcuts
-//      que ejecute "Run Script" con este script y parámetros custom.
-//
-// 📦 Funcionalidades:
-//   • 🎯 Gestión de tareas: Añadir, completar, eliminar, priorizar
-//   • 🍅 Temporizador Pomodoro: 25/5/15 min con notificaciones
-//   • 📊 Estadísticas de sesión: Tiempo enfocado, tareas completadas
-//   • 💾 Persistencia local con FileManager (JSON)
-//   • 🔔 Notificaciones nativas al finalizar cada bloque
-//   • 🎨 Interfaz nativa iOS con SF Symbols, gradients, Dark Mode
-//   • 📅 Integración opcional con Calendario y Recordatorios
-//   • 📤 Exportación/importación de datos via Share Sheet / Files
-//
-// 🌟 Inspiración: Flow state + técnica Pomodoro + GTD
-// =============================================================================
-
-// ──────────────────────────────────────────────────────────────────────────────
-// CONFIGURACIÓN EDITABLE
-// ──────────────────────────────────────────────────────────────────────────────
 
 const CONFIG = {
-  // Duración por defecto (en minutos)
+  
   workDuration: 25,
   breakDuration: 5,
   longBreakDuration: 15,
   cyclesBeforeLongBreak: 4,
 
-  // Colores de prioridad (van desde menor a mayor urgencia)
+  
   priorities: {
     baja: { color: new Color("#8E8E93"), icon: "arrow.down.circle" },
     media: { color: new Color("#FF9F0A"), icon: "equal.circle" },
@@ -68,7 +15,7 @@ const CONFIG = {
     crítica: { color: new Color("#BF5AF2"), icon: "flame.circle" },
   },
 
-  // Íconos de categorías (SF Symbols)
+  
   categories: {
     trabajo:    "briefcase",
     personal:   "person",
@@ -79,10 +26,10 @@ const CONFIG = {
     otro:       "ellipsis.circle",
   },
 
-  // Archivo de persistencia
+  
   dataFile: "pomodoro-flow-data.json",
 
-  // Colores del tema oscuro nativo iOS
+  
   theme: {
     bg:            new Color("#1C1C1E"),
     bgSecondary:   new Color("#2C2C2E"),
@@ -98,7 +45,7 @@ const CONFIG = {
     separator:     new Color("#38383A"),
   },
 
-  // Gradientes para cards
+  
   gradients: {
     pomodoro:  [new Color("#5E5CE6"), new Color("#BF5AF2")],
     break:     [new Color("#30D158"), new Color("#34C759")],
@@ -107,10 +54,6 @@ const CONFIG = {
     empty:     [new Color("#2C2C2E"), new Color("#3A3A3C")],
   },
 };
-
-// ──────────────────────────────────────────────────────────────────────────────
-// MODELO DE DATOS
-// ──────────────────────────────────────────────────────────────────────────────
 
 class Task {
   constructor(title, priority = "media", category = "otro") {
@@ -121,14 +64,14 @@ class Task {
     this.createdAt = new Date().toISOString();
     this.completedAt = null;
     this.completed = false;
-    this.pomodorosUsed = 0; // cuántos pomodoros dedicados
+    this.pomodorosUsed = 0; 
     this.notes = "";
   }
 }
 
 class PomodoroState {
   constructor() {
-    this.phase = "idle"; // idle | work | break | longBreak
+    this.phase = "idle"; 
     this.sessionStart = null;
     this.elapsedSeconds = 0;
     this.totalWorkSeconds = 0;
@@ -143,7 +86,7 @@ class AppData {
   constructor() {
     this.tasks = [];
     this.pomodoro = new PomodoroState();
-    this.sessions = []; // historial de sesiones completadas
+    this.sessions = []; 
     this.lastOpened = new Date().toISOString();
     this.settings = {
       workDuration: CONFIG.workDuration,
@@ -153,10 +96,6 @@ class AppData {
     };
   }
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// PERSISTENCIA
-// ──────────────────────────────────────────────────────────────────────────────
 
 const DataStore = {
   _fm: FileManager.iCloud() || FileManager.local(),
@@ -190,7 +129,7 @@ const DataStore = {
   },
 
   _migrate(data) {
-    // Asegurar que todos los campos existan (para compatibilidad futura)
+    
     if (!data.pomodoro) data.pomodoro = new PomodoroState();
     if (!data.sessions) data.sessions = [];
     if (!data.settings) {
@@ -222,10 +161,6 @@ const DataStore = {
     }
   },
 };
-
-// ──────────────────────────────────────────────────────────────────────────────
-// NOTIFICACIONES
-// ──────────────────────────────────────────────────────────────────────────────
 
 const Notifier = {
   async schedule(title, body, seconds = 0) {
@@ -264,12 +199,8 @@ const Notifier = {
   },
 };
 
-// ──────────────────────────────────────────────────────────────────────────────
-// UTILIDADES DE UI
-// ──────────────────────────────────────────────────────────────────────────────
-
 const UI = {
-  // Crear un gradiente vertical con bordes redondeados
+  
   gradientLayer(colors, locations = [0, 1]) {
     const grad = new LinearGradient();
     grad.colors = colors;
@@ -277,7 +208,7 @@ const UI = {
     return grad;
   },
 
-  // Crear stack con fondo gradiente
+  
   gradientStack(colors, cornerRadius = 14, locations = [0, 1]) {
     const stack = new WidgetStack();
     stack.backgroundGradient = this.gradientLayer(colors, locations);
@@ -285,13 +216,13 @@ const UI = {
     return stack;
   },
 
-  // Añadir padding estándar
+  
   withPadding(stack, insets = { top: 12, bottom: 12, left: 14, right: 14 }) {
     stack.setPadding(insets.top, insets.left, insets.bottom, insets.right);
     return stack;
   },
 
-  // Crear texto con estilo nativo iOS
+  
   text(content, opts = {}) {
     const t = new WidgetText();
     t.text = content;
@@ -304,7 +235,7 @@ const UI = {
     return t;
   },
 
-  // Crear un icono SF Symbol como texto
+  
   sfSymbol(name, size = 16, color = null) {
     const t = new WidgetText();
     t.font = Font.mediumSystemFont(size);
@@ -313,18 +244,18 @@ const UI = {
     return t;
   },
 
-  // Separador horizontal
+  
   separator(color = CONFIG.theme.separator) {
     const s = new WidgetStack();
     s.addSpacer(null);
     s.backgroundColor = color;
     s.setPadding(0, 0, 0, 0);
     s.size = new Size(0, 0.5);
-    // En widgets, el separador se logra con altura fija
+    
     return s;
   },
 
-  // Badge de prioridad
+  
   priorityBadge(priority) {
     const p = CONFIG.priorities[priority] || CONFIG.priorities.media;
     const stack = new WidgetStack();
@@ -338,14 +269,14 @@ const UI = {
     return stack;
   },
 
-  // Formatear segundos a mm:ss
+  
   formatTime(seconds) {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   },
 
-  // Formatear segundos a formato legible
+  
   formatDuration(seconds) {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -353,17 +284,13 @@ const UI = {
     return `${m} min`;
   },
 
-  // Sombras para widgets
+  
   shadow(widget, opts = {}) {
     widget.shadowColor = opts.color || new Color("#000000", 0.3);
     widget.shadowRadius = opts.radius || 6;
     widget.shadowOffset = opts.offset || { width: 0, height: 2 };
   },
 };
-
-// ──────────────────────────────────────────────────────────────────────────────
-// LÓGICA DE NEGOCIO
-// ──────────────────────────────────────────────────────────────────────────────
 
 const PomodoroEngine = {
   _data: null,
@@ -378,7 +305,7 @@ const PomodoroEngine = {
     DataStore.save(this._data);
   },
 
-  // Obtener tareas del día de hoy
+  
   getTodayTasks() {
     const today = new Date().toISOString().split("T")[0];
     return this._data.tasks.filter((t) => {
@@ -386,17 +313,17 @@ const PomodoroEngine = {
     });
   },
 
-  // Obtener tareas pendientes
+  
   getPendingTasks() {
     return this._data.tasks.filter((t) => !t.completed);
   },
 
-  // Obtener todas las tareas
+  
   getAllTasks() {
     return this._data.tasks;
   },
 
-  // Añadir nueva tarea
+  
   addTask(title, priority = "media", category = "otro") {
     if (!title || title.trim().length === 0) return null;
     const task = new Task(title.trim(), priority, category);
@@ -405,7 +332,7 @@ const PomodoroEngine = {
     return task;
   },
 
-  // Completar tarea
+  
   completeTask(taskId) {
     const task = this._data.tasks.find((t) => t.id === taskId);
     if (!task || task.completed) return false;
@@ -419,7 +346,7 @@ const PomodoroEngine = {
     return true;
   },
 
-  // Eliminar tarea
+  
   deleteTask(taskId) {
     const idx = this._data.tasks.findIndex((t) => t.id === taskId);
     if (idx === -1) return false;
@@ -431,7 +358,7 @@ const PomodoroEngine = {
     return true;
   },
 
-  // Reordenar prioridad de una tarea
+  
   setPriority(taskId, priority) {
     const task = this._data.tasks.find((t) => t.id === taskId);
     if (!task || !CONFIG.priorities[priority]) return false;
@@ -440,7 +367,7 @@ const PomodoroEngine = {
     return true;
   },
 
-  // Asignar tarea actual al pomodoro
+  
   setCurrentTask(taskId) {
     const task = this._data.tasks.find((t) => t.id === taskId);
     if (!task) return false;
@@ -454,7 +381,7 @@ const PomodoroEngine = {
     return this._data.tasks.find((t) => t.id === this._data.pomodoro.currentTaskId) || null;
   },
 
-  // Iniciar pomodoro
+  
   startPomodoro() {
     const state = this._data.pomodoro;
     if (state.phase !== "idle") return false;
@@ -464,7 +391,7 @@ const PomodoroEngine = {
     state.elapsedSeconds = 0;
     this.save();
 
-    // Programar notificación de fin
+    
     const workSec = this._data.settings.workDuration * 60;
     Notifier.schedule(
       "🍅 Fin del Pomodoro",
@@ -475,7 +402,7 @@ const PomodoroEngine = {
     return true;
   },
 
-  // Iniciar descanso
+  
   startBreak() {
     const state = this._data.pomodoro;
     if (state.phase === "idle") return false;
@@ -492,7 +419,7 @@ const PomodoroEngine = {
     state.elapsedSeconds = 0;
     this.save();
 
-    // Notificación de fin de descanso
+    
     Notifier.schedule(
       isLong ? "☕ Fin del descanso largo" : "☕ Fin del descanso",
       `¡${Math.floor(duration)} minutos de descanso completados! ¿Listo para el siguiente Pomodoro?`,
@@ -502,17 +429,17 @@ const PomodoroEngine = {
     return true;
   },
 
-  // Completar ciclo actual (work -> break, break -> work)
+  
   completeCycle() {
     const state = this._data.pomodoro;
 
     if (state.phase === "work") {
-      // Registrar tiempo trabajado
+      
       const workSec = this._data.settings.workDuration * 60;
       state.totalWorkSeconds += workSec;
       state.cyclesCompleted++;
 
-      // Asignar pomodoro a la tarea actual
+      
       if (state.currentTaskId) {
         const task = this._data.tasks.find((t) => t.id === state.currentTaskId);
         if (task) task.pomodorosUsed++;
@@ -530,7 +457,7 @@ const PomodoroEngine = {
       state.phase = "work";
       this.save();
 
-      // Programar notificación de fin
+      
       const workSec = this._data.settings.workDuration * 60;
       Notifier.schedule(
         "🍅 Fin del Pomodoro",
@@ -544,12 +471,12 @@ const PomodoroEngine = {
     return null;
   },
 
-  // Detener sesión completa
+  
   stopSession() {
     const state = this._data.pomodoro;
     if (state.phase === "idle") return false;
 
-    // Guardar sesión en historial
+    
     const session = {
       endedAt: new Date().toISOString(),
       workSeconds: state.totalWorkSeconds,
@@ -559,7 +486,7 @@ const PomodoroEngine = {
     };
     this._data.sessions.push(session);
 
-    // Resetear estado
+    
     state.phase = "idle";
     state.sessionStart = null;
     state.elapsedSeconds = 0;
@@ -572,7 +499,7 @@ const PomodoroEngine = {
     return true;
   },
 
-  // Obtener el progress (0-1) del ciclo actual
+  
   getProgress() {
     const state = this._data.pomodoro;
     if (state.phase === "idle") return 0;
@@ -595,7 +522,7 @@ const PomodoroEngine = {
     return Math.min(state.elapsedSeconds / duration, 1);
   },
 
-  // Actualizar elapsedSeconds (llamar frecuentemente)
+  
   tick() {
     const state = this._data.pomodoro;
     if (state.phase === "idle" || !state.sessionStart) return;
@@ -604,7 +531,7 @@ const PomodoroEngine = {
     state.elapsedSeconds = Math.floor((Date.now() - start.getTime()) / 1000);
   },
 
-  // Obtener tiempo restante del ciclo actual
+  
   getRemainingSeconds() {
     const state = this._data.pomodoro;
     if (state.phase === "idle" || !state.sessionStart) return 0;
@@ -627,7 +554,7 @@ const PomodoroEngine = {
     return Math.max(0, duration - state.elapsedSeconds);
   },
 
-  // Estadísticas del día
+  
   getDailyStats() {
     const state = this._data.pomodoro;
     const today = new Date().toISOString().split("T")[0];
@@ -646,14 +573,10 @@ const PomodoroEngine = {
   },
 };
 
-// ──────────────────────────────────────────────────────────────────────────────
-// CONSTRUCTOR DE WIDGET (SIZES: Small, Medium, Large)
-// ──────────────────────────────────────────────────────────────────────────────
-
 function createWidget(data, config) {
   const engine = new PomodoroEngine();
 
-  // Usar los datos cargados (o cargar si no se pasaron)
+  
   if (!data) {
     const fm = FileManager.iCloud() || FileManager.local();
     const path = fm.joinPath(fm.documentsDirectory(), CONFIG.dataFile);
@@ -664,7 +587,7 @@ function createWidget(data, config) {
     }
   }
 
-  // Sobrescribir configuración desde parámetros del widget
+  
   if (config) {
     if (config.work) data.settings.workDuration = parseInt(config.work) || CONFIG.workDuration;
     if (config.break) data.settings.breakDuration = parseInt(config.break) || CONFIG.breakDuration;
@@ -689,17 +612,13 @@ function createWidget(data, config) {
       break;
   }
 
-  // Añadir el gradiente de fondo general
+  
   widget.backgroundGradient = UI.gradientLayer(
     [CONFIG.theme.bg, CONFIG.theme.bgSecondary],
   );
 
   return widget;
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// WIDGET SMALL — Sesión activa + contador
-// ──────────────────────────────────────────────────────────────────────────────
 
 function buildSmallWidget(widget, data, engine) {
   const state = data.pomodoro;
@@ -708,10 +627,10 @@ function buildSmallWidget(widget, data, engine) {
     ? data.tasks.find((t) => t.id === state.currentTaskId) || null
     : null;
 
-  // Spacer superior
+  
   widget.addSpacer(4);
 
-  // ── Fila superior: Estado + icono ──
+  
   const headerStack = widget.addStack();
   headerStack.layoutHorizontally();
   headerStack.addSpacer(null);
@@ -742,7 +661,7 @@ function buildSmallWidget(widget, data, engine) {
 
   widget.addSpacer(2);
 
-  // ── Línea decorativa ──
+  
   const lineStack = widget.addStack();
   lineStack.layoutHorizontally();
   lineStack.addSpacer(6);
@@ -754,9 +673,9 @@ function buildSmallWidget(widget, data, engine) {
 
   widget.addSpacer(6);
 
-  // ── Timer grande ──
+  
   if (state.phase !== "idle") {
-    // Calcular tiempo restante
+    
     let totalSec;
     switch (state.phase) {
       case "work":
@@ -783,7 +702,7 @@ function buildSmallWidget(widget, data, engine) {
     timerText.textColor = phaseColor;
     timerStack.addSpacer(null);
 
-    // Progress bar
+    
     const progress = totalSec > 0 ? Math.min(elapsed / totalSec, 1) : 0;
     widget.addSpacer(4);
     const progressStack = widget.addStack();
@@ -797,14 +716,14 @@ function buildSmallWidget(widget, data, engine) {
     fillStack.size = new Size(0, 4);
     fillStack.backgroundColor = phaseColor;
     fillStack.cornerRadius = 2;
-    // Ajustar proporción
+    
     progressBg.relativeWidth = 1.0;
     fillStack.relativeWidth = progress;
     progressStack.addSpacer(6);
 
     widget.addSpacer(6);
 
-    // Ciclo actual
+    
     const cycleStack = widget.addStack();
     cycleStack.layoutHorizontally();
     cycleStack.addSpacer(null);
@@ -813,7 +732,7 @@ function buildSmallWidget(widget, data, engine) {
     cycleText.textColor = CONFIG.theme.textTertiary;
     cycleStack.addSpacer(null);
   } else {
-    // Estado inactivo
+    
     const idleStack = widget.addStack();
     idleStack.layoutVertically();
     idleStack.addSpacer(null);
@@ -827,7 +746,7 @@ function buildSmallWidget(widget, data, engine) {
 
   widget.addSpacer(2);
 
-  // ── Próxima tarea ──
+  
   if (pendingTasks.length > 0) {
     const separator = widget.addStack();
     separator.setPadding(0, 0, 0, 0);
@@ -864,19 +783,15 @@ function buildSmallWidget(widget, data, engine) {
   widget.addSpacer(6);
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// WIDGET MEDIUM — Tareas + Timer + Stats rápidas
-// ──────────────────────────────────────────────────────────────────────────────
-
 function buildMediumWidget(widget, data, engine) {
   const state = data.pomodoro;
   const pendingTasks = data.tasks.filter((t) => !t.completed);
 
-  // ── Layout horizontal: timer (izq) + tareas (der) ──
+  
   const mainStack = widget.addStack();
   mainStack.layoutHorizontally();
 
-  // ── Columna izquierda: Timer ──
+  
   const leftCol = mainStack.addStack();
   leftCol.layoutVertically();
   leftCol.setPadding(10, 12, 10, 8);
@@ -897,7 +812,7 @@ function buildMediumWidget(widget, data, engine) {
   label.font = Font.boldSystemFont(9);
   label.textColor = phaseColor;
 
-  // Timer grande
+  
   if (isActive) {
     let totalSec;
     if (state.phase === "work") totalSec = data.settings.workDuration * 60;
@@ -912,7 +827,7 @@ function buildMediumWidget(widget, data, engine) {
     timeText.font = Font.boldMonospacedSystemFont(26);
     timeText.textColor = Color.white();
 
-    // Barra de progreso
+    
     const progress = totalSec > 0 ? Math.min(elapsed / totalSec, 1) : 0;
     leftCol.addSpacer(2);
     const pStack = leftCol.addStack();
@@ -942,13 +857,13 @@ function buildMediumWidget(widget, data, engine) {
 
   leftCol.addSpacer(null);
 
-  // Barra separadora vertical
+  
   const divider = mainStack.addStack();
   divider.size = new Size(1, 0);
   divider.backgroundColor = CONFIG.theme.separator;
   divider.setPadding(8, 0, 8, 0);
 
-  // ── Columna derecha: Tareas ──
+  
   const rightCol = mainStack.addStack();
   rightCol.layoutVertically();
   rightCol.setPadding(10, 8, 10, 12);
@@ -966,7 +881,7 @@ function buildMediumWidget(widget, data, engine) {
     emptyText.textColor = CONFIG.theme.textTertiary;
     rightCol.addSpacer(null);
   } else {
-    // Mostrar hasta 3 tareas
+    
     const maxShow = Math.min(pendingTasks.length, 3);
     for (let i = 0; i < maxShow; i++) {
       const task = pendingTasks[i];
@@ -1002,7 +917,7 @@ function buildMediumWidget(widget, data, engine) {
 
     rightCol.addSpacer(null);
 
-    // Mostrar tareas restantes
+    
     if (pendingTasks.length > 3) {
       const more = rightCol.addText(`+${pendingTasks.length - 3} más`);
       more.font = Font.mediumSystemFont(9);
@@ -1012,10 +927,6 @@ function buildMediumWidget(widget, data, engine) {
 
   rightCol.addSpacer(6);
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// WIDGET LARGE — Dashboard completo
-// ──────────────────────────────────────────────────────────────────────────────
 
 function buildLargeWidget(widget, data, engine) {
   const state = data.pomodoro;
@@ -1032,12 +943,12 @@ function buildLargeWidget(widget, data, engine) {
   const phaseEmoji = state.phase === "work" ? "🍅" : state.phase === "break" ? "☕" : state.phase === "longBreak" ? "☕" : "⏸️";
   const phaseLabel = state.phase === "work" ? "ENFOQUE" : state.phase === "break" ? "PAUSA CORTA" : state.phase === "longBreak" ? "PAUSA LARGA" : "INACTIVO";
 
-  // ── Fila 1: Header + Timer grande ──
+  
   const headerRow = widget.addStack();
   headerRow.layoutHorizontally();
   headerRow.setPadding(12, 14, 6, 14);
 
-  // Left: estado
+  
   const leftH = headerRow.addStack();
   leftH.layoutVertically();
 
@@ -1048,7 +959,7 @@ function buildLargeWidget(widget, data, engine) {
   estadoLabel.font = Font.boldSystemFont(12);
   estadoLabel.textColor = phaseColor;
 
-  // Fecha
+  
   leftH.addSpacer(2);
   const now = new Date();
   const dateStr = now.toLocaleDateString("es-ES", {
@@ -1060,7 +971,7 @@ function buildLargeWidget(widget, data, engine) {
   fecha.font = Font.mediumSystemFont(10);
   fecha.textColor = CONFIG.theme.textTertiary;
 
-  // Right: Timer
+  
   const rightH = headerRow.addStack();
   rightH.layoutVertically();
   rightH.addSpacer(null);
@@ -1110,7 +1021,7 @@ function buildLargeWidget(widget, data, engine) {
     idleHint.textAlignment = 2;
   }
 
-  // ── Separador ──
+  
   const sep1 = widget.addStack();
   sep1.setPadding(0, 14, 0, 14);
   const sepLine1 = sep1.addStack();
@@ -1120,7 +1031,7 @@ function buildLargeWidget(widget, data, engine) {
 
   widget.addSpacer(6);
 
-  // ── Fila 2: Stats ──
+  
   const statsRow = widget.addStack();
   statsRow.layoutHorizontally();
   statsRow.setPadding(0, 14, 6, 14);
@@ -1162,7 +1073,7 @@ function buildLargeWidget(widget, data, engine) {
 
   widget.addSpacer(6);
 
-  // ── Separador ──
+  
   const sep2 = widget.addStack();
   sep2.setPadding(0, 14, 0, 14);
   const sepLine2 = sep2.addStack();
@@ -1172,7 +1083,7 @@ function buildLargeWidget(widget, data, engine) {
 
   widget.addSpacer(6);
 
-  // ── Fila 3: Tareas pendientes (hasta 4) ──
+  
   const tasksHeader = widget.addStack();
   tasksHeader.layoutHorizontally();
   tasksHeader.setPadding(0, 14, 0, 14);
@@ -1247,7 +1158,7 @@ function buildLargeWidget(widget, data, engine) {
 
   widget.addSpacer(6);
 
-  // ── Pie: atajos ──
+  
   const footer = widget.addStack();
   footer.layoutHorizontally();
   footer.setPadding(0, 14, 10, 14);
@@ -1268,15 +1179,11 @@ function buildLargeWidget(widget, data, engine) {
   footer.addSpacer(null);
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// INTERFAZ COMPLETA (APP) — in-app UI usando Safari/WebView/Alertas
-// ──────────────────────────────────────────────────────────────────────────────
-
 async function showFullApp() {
   const engine = new PomodoroEngine();
   const data = engine.data;
 
-  // Menú principal usando alerta con múltiples opciones
+  
   while (true) {
     const state = engine.data.pomodoro;
     const pendingCount = engine.getPendingTasks().length;
@@ -1294,7 +1201,7 @@ async function showFullApp() {
     menu.title = "🍅 Pomodoro Flow";
     menu.message = `${timerStatus}  ·  📋 ${pendingCount} tareas pendientes\nCiclos hoy: ${state.cyclesCompleted}  ·  ⏱️ ${UI.formatDuration(state.totalWorkSeconds)} enfocados`;
 
-    // Opciones dinámicas según estado
+    
     const taskOpt = "📋 Gestionar tareas";
     const addOpt = "➕ Añadir tarea";
 
@@ -1314,17 +1221,17 @@ async function showFullApp() {
     const choice = await menu.presentSheet();
 
     if (choice === -1) {
-      // Cerrar
+      
       engine.stopSession();
       return;
     }
 
-    // Índices varían según estado
+    
     let idx = 0;
 
     if (state.phase === "idle") {
       if (choice === 0) {
-        // Iniciar pomodoro
+        
         engine.startPomodoro();
         const workMin = engine.data.settings.workDuration;
         await Notifier.sendImmediate(
@@ -1342,9 +1249,9 @@ async function showFullApp() {
         await settingsFlow(engine);
       }
     } else {
-      // Activo
+      
       if (choice === 0) {
-        // Siguiente fase
+        
         const nextPhase = engine.completeCycle();
         if (nextPhase === "break") {
           showResult("☕ Descanso iniciado\n\nTómate unos minutos para recargar.");
@@ -1352,7 +1259,7 @@ async function showFullApp() {
           showResult("🍅 Nuevo Pomodoro\n\n¡De vuelta al enfoque!");
         }
       } else if (choice === 1) {
-        // Parar sesión
+        
         engine.stopSession();
         showResult("⏹️ Sesión finalizada\n\nDescansa y revisa tus logros.");
       } else if (choice === 2) {
@@ -1367,10 +1274,6 @@ async function showFullApp() {
     }
   }
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// FLUJOS DE LA APP
-// ──────────────────────────────────────────────────────────────────────────────
 
 async function addTaskFlow(engine) {
   const alert = new Alert();
@@ -1390,7 +1293,7 @@ async function addTaskFlow(engine) {
     return;
   }
 
-  // Elegir prioridad
+  
   const prioAlert = new Alert();
   prioAlert.title = "🎯 Prioridad";
   prioAlert.message = `"${title.length > 30 ? title.slice(0, 30) + "…" : title}"`;
@@ -1406,7 +1309,7 @@ async function addTaskFlow(engine) {
   const priorities = ["baja", "media", "alta", "crítica"];
   const priority = priorities[prioChoice];
 
-  // Elegir categoría
+  
   const catAlert = new Alert();
   catAlert.title = "📁 Categoría";
   const cats = Object.keys(CONFIG.categories);
@@ -1432,7 +1335,7 @@ async function taskManagerFlow(engine) {
     return;
   }
 
-  // Mostrar tareas en un menú
+  
   const taskAlert = new Alert();
   taskAlert.title = "📋 Tareas pendientes";
   taskAlert.message = `Selecciona una tarea (${pending.length} total)`;
@@ -1452,12 +1355,12 @@ async function taskManagerFlow(engine) {
 
   const selectedTask = pending[choice];
 
-  // Acciones para la tarea
+  
   const actionAlert = new Alert();
   actionAlert.title = selectedTask.title;
   actionAlert.message = `Prioridad: ${selectedTask.priority}\nCategoría: ${selectedTask.category}\n🍅 Pomodoros: ${selectedTask.pomodorosUsed}`;
 
-  // Asignar como tarea actual
+  
   if (selectedTask.id !== engine.data.pomodoro.currentTaskId) {
     actionAlert.addAction("🎯 Asignar a Pomodoro actual");
   }
@@ -1482,11 +1385,11 @@ async function taskManagerFlow(engine) {
   }
 
   if (actionChoice === actIdx) {
-    // Completar
+    
     engine.completeTask(selectedTask.id);
     showResult(`✅ "${selectedTask.title}" completada.\n\n¡Sigue así! 🚀`);
   } else if (actionChoice === actIdx + 1) {
-    // Subir prioridad
+    
     const order = ["baja", "media", "alta", "crítica"];
     const currentIdx = order.indexOf(selectedTask.priority);
     if (currentIdx < order.length - 1) {
@@ -1496,7 +1399,7 @@ async function taskManagerFlow(engine) {
       showResult("⚠️ Ya tiene la máxima prioridad.");
     }
   } else if (actionChoice === actIdx + 2) {
-    // Bajar prioridad
+    
     const order = ["baja", "media", "alta", "crítica"];
     const currentIdx = order.indexOf(selectedTask.priority);
     if (currentIdx > 0) {
@@ -1506,7 +1409,7 @@ async function taskManagerFlow(engine) {
       showResult("⚠️ Ya tiene la mínima prioridad.");
     }
   } else if (actionChoice === actIdx + 3) {
-    // Eliminar
+    
     const confirmAlert = new Alert();
     confirmAlert.title = "🗑️ Eliminar tarea";
     confirmAlert.message = `¿Eliminar "${selectedTask.title}"?`;
@@ -1524,7 +1427,7 @@ async function statsFlow(engine) {
   const stats = engine.getDailyStats();
   const sessions = engine.data.sessions;
 
-  // Estadísticas de todos los tiempos
+  
   const allTimeWork = sessions.reduce((acc, s) => acc + s.workSeconds, 0);
   const allTimeBreak = sessions.reduce((acc, s) => acc + s.breakSeconds, 0);
   const allTimeCycles = sessions.reduce((acc, s) => acc + s.cyclesCompleted, 0);
@@ -1549,7 +1452,7 @@ async function statsFlow(engine) {
 
   const choice = await statsAlert.present();
   if (choice === 0) {
-    // Exportar via Share Sheet
+    
     const jsonData = DataStore.exportJSON();
     const fm = FileManager.local();
     const exportPath = fm.joinPath(fm.temporaryDirectory(), "pomodoro-flow-backup.json");
@@ -1631,7 +1534,7 @@ async function settingsFlow(engine) {
       }
     }
   } else if (choice === 3) {
-    // Importar datos
+    
     const fm = FileManager.iCloud() || FileManager.local();
     const bookmarkedFolder = await DocumentPicker.open(false);
     if (bookmarkedFolder) {
@@ -1649,10 +1552,6 @@ async function settingsFlow(engine) {
   }
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// UTILIDAD: Mostrar resultado en alerta
-// ──────────────────────────────────────────────────────────────────────────────
-
 function showResult(message) {
   const alert = new Alert();
   alert.title = "🍅 Pomodoro Flow";
@@ -1661,13 +1560,9 @@ function showResult(message) {
   alert.present();
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// PUNTO DE ENTRADA
-// ──────────────────────────────────────────────────────────────────────────────
-
 async function main() {
   try {
-    // Parsear parámetros del widget (si los hay)
+    
     const widgetParams = args.widgetParameter;
     let config = { widgetFamily: config.widgetFamily || "small" };
 
@@ -1681,14 +1576,14 @@ async function main() {
       }
     }
 
-    // Detectar si se ejecuta como widget o como app
+    
     const isWidget = config.widgetFamily || args.widgetParameter !== null;
 
     if (isWidget) {
-      // ✅ MODO WIDGET — renderizar en pantalla de inicio
+      
       const data = DataStore.load();
 
-      // Actualizar elapsed time
+      
       if (data.pomodoro.sessionStart) {
         const start = new Date(data.pomodoro.sessionStart);
         data.pomodoro.elapsedSeconds = Math.floor((Date.now() - start.getTime()) / 1000);
@@ -1698,11 +1593,11 @@ async function main() {
       Script.setWidget(widget);
       Script.complete();
     } else {
-      // ✅ MODO APP — interfaz completa interactiva
+      
       await showFullApp();
     }
   } catch (error) {
-    // ── Widget de fallback (error) ──
+    
     console.error("Critical error: " + error.message);
 
     const errorWidget = new ListWidget();
@@ -1737,9 +1632,5 @@ async function main() {
     Script.complete();
   }
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// EJECUCIÓN
-// ──────────────────────────────────────────────────────────────────────────────
 
 await main();

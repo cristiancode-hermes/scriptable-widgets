@@ -1,61 +1,24 @@
-// Variables used by Scriptable.
-// These must be at the very top of the file; do not edit.
-// icon-color: teal; icon-glyph: wind;
 
-// =============================================================================
-// 🌬️ AIR QUALITY & WEATHER DETAIL WIDGET  —  Scriptable Widget para iOS / iPadOS
-// =============================================================================
-// Un widget informativo que muestra en detalle la calidad del aire (AQI) y
-// condiciones meteorológicas actuales con visualizaciones nativas iOS.
-//
-// ✅ Permisos iOS requeridos:
-//   • Red → Datos móviles/WiFi (para APIs de clima y calidad del aire)
-//   • Localización → Opcional (para detección automática de ubicación)
-//
-// 📐 Configuración como widget:
-//   1. Añadir widget → Elegir Scriptable → Seleccionar este script
-//   2. Parámetro del widget (opcional):
-//      • "40.4168,-3.7038"  → latitud,longitud (ej: Madrid)
-//      • "40.4168,-3.7038|ESP" → lat,lon + código ISO de país para holidays
-//      • Vacío → usa geolocalización por IP (aproximada)
-//   3. Elegir tamaño: Small, Medium o Large
-//   4. El widget se refresca automáticamente cada 30 min
-//
-// 📦 Estructura por tamaño:
-//   Small  → Temp actual + AQI (índice) + emoji condición
-//   Medium → Temp grande + AQI circular + UV + viento + humedad + max/min
-//   Large  → Todo: temp actual extendida + AQI detallado (PM2.5, PM10, O3, NO₂) +
-//             previsión 3 días + UV histórico + gráfico de viento + amanecer/atardecer
-//
-// 🌐 APIs externas (gratuitas, sin API key):
-//   • Open-Meteo Weather:   https://open-meteo.com/       (clima actual + previsión)
-//   • Open-Meteo AQI:       https://open-meteo.com/en/docs/air-quality-api  (calidad aire)
-//   • ip-api.com:           http://ip-api.com/json/       (geolocalización IP)
-// =============================================================================
-
-// ──────────────────────────────────────────────────────────────────────────────
-// CONFIGURACIÓN EDITABLE
-// ──────────────────────────────────────────────────────────────────────────────
 
 const CONFIG = {
-  // Coordenadas por defecto (Madrid centro)
+  
   defaultLatitude: 40.4168,
   defaultLongitude: -3.7038,
   defaultCountry: "ESP",
 
-  // Minutos entre refrescos de caché
+  
   cacheMinutes: 20,
 
-  // Sistema métrico (true = °C, km/h, hPa; false = °F, mph, inHg)
+  
   useMetric: true,
 
-  // Tiempo máximo de espera para APIs (segundos)
+  
   apiTimeout: 8,
 
-  // Mostrar sensación térmica en small
+  
   showFeelsLikeSmall: true,
 
-  // Umbrales AQI (US EPA standard)
+  
   aqiThresholds: [
     { max: 50,  label: "Buena",  color: "#4caf50" },
     { max: 100, label: "Moderada", color: "#ffeb3b" },
@@ -66,12 +29,8 @@ const CONFIG = {
   ],
 };
 
-// ──────────────────────────────────────────────────────────────────────────────
-// PALETA DE COLORES — Diseño nativo iOS modo oscuro
-// ──────────────────────────────────────────────────────────────────────────────
-
 const C = {
-  // Gradientes por AQI
+  
   aqiGradients: {
     good:       [new Color("#1b3a2b"), new Color("#1a2f2a")],
     moderate:   [new Color("#3a3520"), new Color("#2a2f20")],
@@ -81,7 +40,7 @@ const C = {
     hazardous:  [new Color("#2a0a1a"), new Color("#1f0515")],
   },
 
-  // Superficies y texto
+  
   surface:      new Color("#ffffff", 0.07),
   surfaceAlt:   new Color("#ffffff", 0.04),
   surfaceActive: new Color("#ffffff", 0.12),
@@ -91,7 +50,7 @@ const C = {
   textUltra:    new Color("#ffffff", 0.25),
   separator:    new Color("#ffffff", 0.08),
 
-  // Colores de métricas
+  
   tempHot:      new Color("#ff6b6b"),
   tempCold:     new Color("#74b9ff"),
   tempMild:     new Color("#ffeaa7"),
@@ -103,19 +62,15 @@ const C = {
   uvVeryHigh:   new Color("#d63031"),
   uvExtreme:    new Color("#6c5ce7"),
 
-  // Colores de viento
+  
   windCalm:     new Color("#81ecec"),
   windBreeze:   new Color("#74b9ff"),
   windStrong:   new Color("#a29bfe"),
   windGale:     new Color("#fd79a8"),
 };
 
-// ──────────────────────────────────────────────────────────────────────────────
-// MAPA DE SÍMBOLOS (SF Symbols → emoji fallback)
-// ──────────────────────────────────────────────────────────────────────────────
-
 const S = {
-  // Tiempo
+  
   sunMax:       "☀️",
   sunHoriz:     "🌅",
   cloudSun:     "⛅",
@@ -125,11 +80,11 @@ const S = {
   cloudFog:     "🌫️",
   cloudLightning: "⛈️",
   cloudDrizzle: "🌦️",
-  // AQI
+  
   leaf:         "🌿",
   mask:         "😷",
   wind:         "💨",
-  // Meteorología
+  
   thermometer:  "🌡️",
   droplet:      "💧",
   windIcon:     "💨",
@@ -137,9 +92,9 @@ const S = {
   eye:          "👁️",
   arrowUp:      "↑",
   arrowDown:    "↓",
-  // UV
+  
   sunSmall:     "☀️",
-  // General
+  
   clock:        "🕐",
   calendar:     "📅",
   location:     "📍",
@@ -148,7 +103,7 @@ const S = {
   star:         "⭐",
   sunrise:      "🌅",
   sunset:       "🌇",
-  // Viento
+  
   compass:      "🧭",
   directionN:   "⬆️",
   directionNE:  "↗️",
@@ -159,10 +114,6 @@ const S = {
   directionW:   "⬅️",
   directionNW:  "↖️",
 };
-
-// ──────────────────────────────────────────────────────────────────────────────
-// MAPA WMO (Weather codes → emoji + label + color)
-// ──────────────────────────────────────────────────────────────────────────────
 
 const WMO_MAP = {
   0:  { emoji: S.sunMax,      label: "Despejado",           color: "#ffeaa7" },
@@ -199,10 +150,6 @@ function getWeatherInfo(code) {
   return WMO_MAP[code] || { emoji: S.cloud, label: "Desconocido", color: "#b2bec3" };
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// AQI LABELS
-// ──────────────────────────────────────────────────────────────────────────────
-
 function getAQIInfo(aqi) {
   if (aqi == null || isNaN(aqi)) return { label: "Sin datos", color: "#636e72", gradient: "good" };
   const thresholds = CONFIG.aqiThresholds;
@@ -224,10 +171,6 @@ function gradientKey(label) {
   return map[label] || "moderate";
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// HELPER: Formatear fecha/hora
-// ──────────────────────────────────────────────────────────────────────────────
-
 function fmtTime(date) {
   const df = new DateFormatter();
   df.useShortTimeStyle();
@@ -248,10 +191,6 @@ function fmtDayName(date) {
   df.useNoTimeStyle();
   return df.string(date);
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// HELPER: Dirección del viento
-// ──────────────────────────────────────────────────────────────────────────────
 
 function windDirectionEmoji(deg) {
   if (deg == null) return S.compass;
@@ -283,10 +222,6 @@ function windUnit() {
   return CONFIG.useMetric ? "km/h" : "mph";
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// HELPER: Humedad → comfort
-// ──────────────────────────────────────────────────────────────────────────────
-
 function humidityComfort(h) {
   if (h == null) return { emoji: "💧", label: "--" };
   if (h < 30) return { emoji: "🏜️", label: "Muy seco" };
@@ -296,10 +231,6 @@ function humidityComfort(h) {
   return { emoji: "🌊", label: "Muy húmedo" };
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// HELPER: UV Index → label + color
-// ──────────────────────────────────────────────────────────────────────────────
-
 function uvInfo(index) {
   if (index == null || isNaN(index)) return { label: "--", color: C.textMuted, emoji: "☀️" };
   if (index <= 2)  return { label: "Bajo",      color: C.uvLow,      emoji: "🟢" };
@@ -308,10 +239,6 @@ function uvInfo(index) {
   if (index <= 10) return { label: "Muy alto",  color: C.uvVeryHigh, emoji: "🔴" };
   return { label: "Extremo",  color: C.uvExtreme,  emoji: "🟣" };
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// HELPER: Temperatura
-// ──────────────────────────────────────────────────────────────────────────────
 
 function fmtTemp(celsius) {
   if (celsius == null) return "--°";
@@ -323,7 +250,6 @@ function tempUnit() {
   return CONFIG.useMetric ? "°C" : "°F";
 }
 
-// Selecciona color según temperatura
 function tempColor(celsius) {
   if (celsius == null) return C.text;
   if (celsius >= 35) return C.tempHot;
@@ -332,10 +258,6 @@ function tempColor(celsius) {
   if (celsius >= 5)  return C.tempCold;
   return new Color("#74b9ff");
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// CACHE MANAGER
-// ──────────────────────────────────────────────────────────────────────────────
 
 class CacheManager {
   constructor(name) {
@@ -373,10 +295,6 @@ class CacheManager {
   }
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// API FETCHERS
-// ──────────────────────────────────────────────────────────────────────────────
-
 async function fetchWithTimeout(url, timeoutSeconds) {
   const req = new Request(url);
   req.timeoutInterval = timeoutSeconds;
@@ -394,7 +312,7 @@ async function fetchLocationByIP() {
 }
 
 async function fetchWeatherData(lat, lon) {
-  // Current weather + daily (for min/max temp and sunrise/sunset)
+  
   const params = `latitude=${lat}&longitude=${lon}` +
     `&current=temperature_2m,relative_humidity_2m,apparent_temperature,weathercode,wind_speed_10m,wind_direction_10m,pressure_msl,uv_index,cloud_cover` +
     `&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,wind_speed_10m_max,precipitation_sum` +
@@ -411,15 +329,11 @@ async function fetchAirQuality(lat, lon) {
   return await fetchWithTimeout(url, CONFIG.apiTimeout);
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// PARSE WIDGET PARAMETER
-// ──────────────────────────────────────────────────────────────────────────────
-
 function parseWidgetParameter(param) {
   if (!param || param.trim() === "") return null;
 
   const trimmed = param.trim();
-  // Format: "lat,lon" or "lat,lon|ISO" or "lat,lon|ISO|cityName"
+  
   const parts = trimmed.split("|");
   const coords = parts[0].split(",").map(s => parseFloat(s.trim()));
 
@@ -434,10 +348,6 @@ function parseWidgetParameter(param) {
   return null;
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// BUILD: Pequeño widget
-// ──────────────────────────────────────────────────────────────────────────────
-
 function buildSmallWidget(w, data) {
   const { current, aqi, location } = data;
   const weather = getWeatherInfo(current.weathercode);
@@ -451,7 +361,7 @@ function buildSmallWidget(w, data) {
   bg.locations = [0, 1];
   w.backgroundGradient = bg;
 
-  // Esquina superior izquierda: ubicación
+  
   const topRow = w.addStack();
   topRow.layoutHorizontally();
   topRow.addText(S.location);
@@ -462,12 +372,12 @@ function buildSmallWidget(w, data) {
 
   w.addSpacer(4);
 
-  // Fila principal: temp grande + emoji clima
+  
   const mainRow = w.addStack();
   mainRow.layoutHorizontally();
   mainRow.centerAlignContent();
 
-  // Temperatura grande
+  
   const tempStack = mainRow.addStack();
   tempStack.layoutVertically();
 
@@ -475,7 +385,7 @@ function buildSmallWidget(w, data) {
   tempLabel.font = Font.boldSystemFont(36);
   tempLabel.textColor = weather.color;
 
-  // Sensación térmica (opcional)
+  
   if (CONFIG.showFeelsLikeSmall && current.apparentTemperature != null) {
     const feelsLabel = tempStack.addText(`Sensación ${fmtTemp(current.apparentTemperature)}`);
     feelsLabel.font = Font.systemFont(9);
@@ -484,13 +394,13 @@ function buildSmallWidget(w, data) {
 
   mainRow.addSpacer(null);
 
-  // Emoji clima grande
+  
   const weatherEmoji = mainRow.addText(weather.emoji);
   weatherEmoji.font = Font.systemFont(32);
 
   w.addSpacer(8);
 
-  // Línea separadora
+  
   const sep = w.addStack();
   sep.layoutHorizontally();
   const sepLine = sep.addText("─".repeat(8));
@@ -501,7 +411,7 @@ function buildSmallWidget(w, data) {
 
   w.addSpacer(6);
 
-  // AQI badge
+  
   const aqiRow = w.addStack();
   aqiRow.layoutHorizontally();
   aqiRow.centerAlignContent();
@@ -523,7 +433,7 @@ function buildSmallWidget(w, data) {
 
   aqiRow.addSpacer(null);
 
-  // Humedad rápida
+  
   if (current.humidity != null) {
     const humStack = aqiRow.addStack();
     humStack.layoutHorizontally();
@@ -539,7 +449,7 @@ function buildSmallWidget(w, data) {
 
   w.addSpacer(4);
 
-  // Hora de actualización
+  
   const timeRow = w.addStack();
   timeRow.layoutHorizontally();
   timeRow.addSpacer(null);
@@ -548,10 +458,6 @@ function buildSmallWidget(w, data) {
   timeLabel.textColor = C.textUltra;
   timeRow.addSpacer(null);
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// BUILD: Mediano widget
-// ──────────────────────────────────────────────────────────────────────────────
 
 function buildMediumWidget(w, data) {
   const { current, aqi, daily, location } = data;
@@ -564,7 +470,7 @@ function buildMediumWidget(w, data) {
   bg.locations = [0, 1];
   w.backgroundGradient = bg;
 
-  // === CABECERA ===
+  
   const header = w.addStack();
   header.layoutHorizontally();
   header.centerAlignContent();
@@ -587,14 +493,14 @@ function buildMediumWidget(w, data) {
 
   w.addSpacer(6);
 
-  // === CUERPO PRINCIPAL: 2 columnas ===
+  
   const body = w.addStack();
   body.layoutHorizontally();
 
-  // ---- Columna izquierda: Temp + emoji ----
+  
   const leftCol = body.addStack();
   leftCol.layoutVertically();
-  leftCol.size = new Size(0, 0); // will size to content
+  leftCol.size = new Size(0, 0); 
 
   const tempRow = leftCol.addStack();
   tempRow.layoutHorizontally();
@@ -617,7 +523,7 @@ function buildMediumWidget(w, data) {
 
   leftCol.addSpacer(4);
 
-  // Min/Max
+  
   if (daily && daily.temperatureMin != null && daily.temperatureMax != null) {
     const minMax = leftCol.addStack();
     minMax.layoutHorizontally();
@@ -634,7 +540,7 @@ function buildMediumWidget(w, data) {
 
   leftCol.addSpacer(6);
 
-  // Sensación térmica
+  
   if (current.apparentTemperature != null) {
     const feelsRow = leftCol.addStack();
     feelsRow.layoutHorizontally();
@@ -649,19 +555,19 @@ function buildMediumWidget(w, data) {
 
   leftCol.addSpacer(null);
 
-  // ---- Columna derecha: Métricas ----
+  
   const rightCol = body.addStack();
   rightCol.layoutVertically();
   rightCol.addSpacer(2);
 
-  // AQI card
+  
   addMetricCard(rightCol, S.leaf, "Calidad del Aire",
     aqi.usAqi != null ? `${aqi.usAqi} · ${aqiInfo.label}` : "Sin datos",
     new Color(aqiInfo.color));
 
   rightCol.addSpacer(4);
 
-  // UV Index
+  
   const uv = uvInfo(current.uvIndex);
   addMetricCard(rightCol, S.sunSmall, "Índice UV",
     current.uvIndex != null ? `${current.uvIndex.toFixed(1)} · ${uv.label}` : "--",
@@ -669,14 +575,14 @@ function buildMediumWidget(w, data) {
 
   rightCol.addSpacer(4);
 
-  // Viento
+  
   addMetricCard(rightCol, S.windIcon, "Viento",
     `${fmtWindSpeed(current.windSpeed)} ${windUnit()} · ${windDirectionLabel(current.windDirection)}`,
     C.wind);
 
   rightCol.addSpacer(4);
 
-  // Humedad
+  
   const comfort = humidityComfort(current.humidity);
   addMetricCard(rightCol, S.droplet, "Humedad",
     current.humidity != null ? `${current.humidity}% · ${comfort.emoji} ${comfort.label}` : "--",
@@ -684,7 +590,7 @@ function buildMediumWidget(w, data) {
 
   rightCol.addSpacer(null);
 
-  // AQI mini badge (esquina)
+  
   const aqiMiniRow = rightCol.addStack();
   aqiMiniRow.layoutHorizontally();
   aqiMiniRow.addSpacer(null);
@@ -696,10 +602,6 @@ function buildMediumWidget(w, data) {
   aqiDetail.font = Font.systemFont(8);
   aqiDetail.textColor = C.textUltra;
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// HELPERS: Tarjetas de métricas
-// ──────────────────────────────────────────────────────────────────────────────
 
 function addMetricCard(parent, icon, label, value, valueColor) {
   const card = parent.addStack();
@@ -728,10 +630,6 @@ function addMetricCard(parent, icon, label, value, valueColor) {
   card.addSpacer(null);
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// BUILD: Grande widget
-// ──────────────────────────────────────────────────────────────────────────────
-
 function buildLargeWidget(w, data) {
   const { current, aqi, daily, hourly, location } = data;
   const weather = getWeatherInfo(current.weathercode);
@@ -743,7 +641,7 @@ function buildLargeWidget(w, data) {
   bg.locations = [0, 1];
   w.backgroundGradient = bg;
 
-  // === CABECERA con ubicación y hora ===
+  
   const header = w.addStack();
   header.layoutHorizontally();
   header.centerAlignContent();
@@ -777,16 +675,16 @@ function buildLargeWidget(w, data) {
 
   w.addSpacer(6);
 
-  // === FILA 1: Temp + AQI circular + Métricas rápidas ===
+  
   const row1 = w.addStack();
   row1.layoutHorizontally();
 
-  // ---- Temp principal grande ----
+  
   const tempCol = row1.addStack();
   tempCol.layoutVertically();
   tempCol.centerAlignContent();
 
-  // Emoji condición grande
+  
   const condEmoji = tempCol.addText(weather.emoji);
   condEmoji.font = Font.systemFont(28);
 
@@ -804,12 +702,12 @@ function buildLargeWidget(w, data) {
 
   row1.addSpacer(10);
 
-  // ---- Columna métricas principales ----
+  
   const metricsCol = row1.addStack();
   metricsCol.layoutVertically();
   metricsCol.addSpacer(4);
 
-  // AQI grande
+  
   const aqiCard = metricsCol.addStack();
   aqiCard.layoutHorizontally();
   aqiCard.centerAlignContent();
@@ -849,7 +747,7 @@ function buildLargeWidget(w, data) {
 
   metricsCol.addSpacer(4);
 
-  // Min/Max hoy + UV + Viento en una fila compacta
+  
   const miniRow = metricsCol.addStack();
   miniRow.layoutHorizontally();
 
@@ -872,7 +770,7 @@ function buildLargeWidget(w, data) {
     miniRow.addSpacer(3);
   }
 
-  // UV chip
+  
   if (current.uvIndex != null) {
     const uvChip = miniRow.addStack();
     uvChip.layoutHorizontally();
@@ -891,7 +789,7 @@ function buildLargeWidget(w, data) {
 
   miniRow.addSpacer(3);
 
-  // Viento chip
+  
   if (current.windSpeed != null) {
     const windChip = miniRow.addStack();
     windChip.layoutHorizontally();
@@ -912,7 +810,7 @@ function buildLargeWidget(w, data) {
 
   w.addSpacer(6);
 
-  // === SEPARADOR ===
+  
   const sepLine = w.addText("─".repeat(30));
   sepLine.font = Font.systemFont(5);
   sepLine.textColor = C.textUltra;
@@ -920,11 +818,11 @@ function buildLargeWidget(w, data) {
 
   w.addSpacer(6);
 
-  // === FILA 2: Detalles AQI + previsión 3 días ===
+  
   const row2 = w.addStack();
   row2.layoutHorizontally();
 
-  // ---- Columna izquierda: Detalles AQI ----
+  
   const aqiDetailCol = row2.addStack();
   aqiDetailCol.layoutVertically();
 
@@ -972,7 +870,7 @@ function buildLargeWidget(w, data) {
 
   aqiDetailCol.addSpacer(null);
 
-  // ---- Columna derecha: Previsión 3 días ----
+  
   const forecastCol = row2.addStack();
   forecastCol.addSpacer(8);
 
@@ -994,7 +892,7 @@ function buildLargeWidget(w, data) {
       dayRow.cornerRadius = 4;
       dayRow.setPadding(3, 6, 3, 6);
 
-      // Nombre día
+      
       const dayName = dayRow.addText(i === 0 ? "Hoy" : day.dayName);
       dayName.font = Font.systemFont(9);
       dayName.textColor = i === 0 ? C.text : C.textMuted;
@@ -1037,7 +935,7 @@ function buildLargeWidget(w, data) {
 
   w.addSpacer(4);
 
-  // === PIE: Amanecer/Atardecer + humedad + nubes ===
+  
   const footer = w.addStack();
   footer.layoutHorizontally();
   footer.centerAlignContent();
@@ -1090,10 +988,6 @@ function buildLargeWidget(w, data) {
   }
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// WIDGET DE FALLBACK (error)
-// ──────────────────────────────────────────────────────────────────────────────
-
 function createErrorWidget(message) {
   const widget = new ListWidget();
   const bg = new LinearGradient();
@@ -1131,25 +1025,21 @@ function createErrorWidget(message) {
   stack.addSpacer(null);
 
   widget.url = "scriptable:///open/" + encodeURIComponent(Script.name());
-  widget.refreshAfterDate = new Date(Date.now() + 600000); // 10 min
+  widget.refreshAfterDate = new Date(Date.now() + 600000); 
 
   return widget;
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// RUN — Punto de entrada principal
-// ──────────────────────────────────────────────────────────────────────────────
 
 async function run() {
   const widget = new ListWidget();
 
   try {
-    // 1. Obtener configuración desde parámetro del widget
+    
     const param = args.widgetParameter || null;
     let config = parseWidgetParameter(param);
 
     if (!config) {
-      // Intentar por IP
+      
       const ipLocation = await fetchLocationByIP();
       config = {
         latitude: ipLocation.latitude,
@@ -1159,15 +1049,15 @@ async function run() {
       };
     }
 
-    // 2. Inicializar caché
+    
     const cache = new CacheManager("air-quality-weather-detail");
     const cacheKey = `${config.latitude.toFixed(2)}_${config.longitude.toFixed(2)}`;
 
-    // 3. Obtener datos con caché
+    
     const now = Math.floor(Date.now() / 1000);
     let weatherData = cache.read(`weather_${cacheKey}`, CONFIG.cacheMinutes);
     let aqiData = cache.read(`aqi_${cacheKey}`, CONFIG.cacheMinutes);
-    let geoData = cache.read(`geo_${cacheKey}`, 1440); // 24h
+    let geoData = cache.read(`geo_${cacheKey}`, 1440); 
 
     if (!weatherData) {
       weatherData = await fetchWeatherData(config.latitude, config.longitude);
@@ -1179,19 +1069,19 @@ async function run() {
       cache.write(`aqi_${cacheKey}`, aqiData);
     }
 
-    // Resolver nombre de ciudad (de la caché de geolocalización inversa)
+    
     let cityName = config.cityName;
     if (!cityName && geoData?.city) {
       cityName = geoData.city;
     }
-    // Si no tenemos nombre, usar coordenadas
+    
     const locationName = cityName || `${config.latitude.toFixed(2)}°, ${config.longitude.toFixed(2)}°`;
 
-    // 4. Procesar datos
+    
     const current = weatherData.current || {};
     const dailyData = weatherData.daily || {};
 
-    // Datos diarios
+    
     const daily = {
       temperatureMin: dailyData.temperature_2m_min?.[0],
       temperatureMax: dailyData.temperature_2m_max?.[0],
@@ -1202,7 +1092,7 @@ async function run() {
       forecast: [],
     };
 
-    // Previsión 3 días
+    
     if (dailyData.time) {
       const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
       for (let i = 0; i < Math.min(dailyData.time.length, 3); i++) {
@@ -1217,23 +1107,23 @@ async function run() {
       }
     }
 
-    // AQI
+    
     const aqiCurrent = aqiData.current || {};
     const aqi = {
       usAqi: aqiCurrent.us_aqi,
       europeanAqi: aqiCurrent.european_aqi,
       pm25: aqiCurrent.pm2_5,
       pm10: aqiCurrent.pm10,
-      ozone: aqiCurrent.nitrogen_dioxide_ozone, // NO₂/O₃ combined
+      ozone: aqiCurrent.nitrogen_dioxide_ozone, 
       no2: aqiCurrent.nitrogen_dioxide,
     };
 
-    // Intentar obtener NO₂ separado (diferentes nombres según versión API)
+    
     if (aqiCurrent.nitrogen_dioxide_ozone != null && aqiCurrent.nitrogen_dioxide == null) {
       aqi.ozone = aqiCurrent.nitrogen_dioxide_ozone;
     }
 
-    // Data object
+    
     const data = {
       current: {
         temperature: current.temperature_2m,
@@ -1256,8 +1146,8 @@ async function run() {
       },
     };
 
-    // 5. Construir según tamaño
-    // Scriptable expone 'config' global con .runsInWidget y .widgetFamily
+    
+    
     const widgetSize = config.runsInWidget ? config.widgetFamily : "medium";
 
     switch (widgetSize) {
@@ -1274,14 +1164,14 @@ async function run() {
         buildMediumWidget(widget, data);
     }
 
-    // 6. Configurar refresco automático (30 min)
+    
     widget.refreshAfterDate = new Date(Date.now() + 30 * 60000);
 
   } catch (err) {
     return createErrorWidget(err.message || "Error desconocido");
   }
 
-  // 7. Presentar
+  
   if (config.runsInWidget) {
     Script.setWidget(widget);
   } else {
@@ -1294,10 +1184,5 @@ async function run() {
   }
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// EJECUTAR
-// ──────────────────────────────────────────────────────────────────────────────
-
-// Scriptable expone 'config' global con .runsInWidget y .widgetFamily
 await run();
 Script.complete();

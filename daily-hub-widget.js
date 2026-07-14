@@ -1,92 +1,50 @@
-// Variables used by Scriptable.
-// These must be at the very top of the file; do not edit.
-// icon-color: deep-blue; icon-glyph: calendar;
 
-// =============================================================================
-// 📅 DAILY HUB WIDGET  —  Scriptable Widget para iOS / iPadOS
-// =============================================================================
-// Un widget completo que une Calendario, Recordatorios, Clima y una cita
-// inspiradora en un solo vistazo desde la pantalla de inicio.
-//
-// ✅ Permisos iOS requeridos:
-//   • Calendarios  → Settings > Scriptable > Calendars (Leer)
-//   • Recordatorios → Settings > Scriptable > Reminders (Leer)
-//   • Red          → Datos móviles/WiFi (para clima y citas)
-//   • Localización  → Opcional (para clima automático por ubicación)
-//
-// 📐 Configuración como widget:
-//   1. Añadir widget → Elegir Scriptable → Seleccionar este script
-//   2. Parámetro del widget (opcional):
-//      • "40.4168,-3.7038"  → latitud,longitud (ej: Madrid)
-//      • "40.4168,-3.7038|CET" → lat,lon + huso horario IANA
-//      • Vacío → usa geolocalización por IP (aproximada)
-//   3. Elegir tamaño: Small, Medium o Large
-//   4. El widget se refresca automáticamente cada 30 min
-//
-// 📦 Estructura por tamaño:
-//   Small  → Fecha + 1 evento próximo + icono clima + temp
-//   Medium → Fecha + 3 eventos + 1 recordatorio + clima + cita
-//   Large  → Fecha completa + 6 eventos + 4 recordatorios + clima + cita
-//
-// 🌐 APIs externas (gratuitas, sin API key):
-//   • Open-Meteo:     https://open-meteo.com/  (clima)
-//   • Quotable:       https://github.com/lukePeavey/quotable  (citas)
-//   • ip-api.com:     Geolocalización aproximada por IP (fallback)
-// =============================================================================
-
-// ──────────────────────────────────────────────────────────────────────────────
-// CONFIGURACIÓN EDITABLE
-// ──────────────────────────────────────────────────────────────────────────────
 
 const CONFIG = {
-  // Coordenadas por defecto (Madrid centro)
+  
   defaultLatitude: 40.4168,
   defaultLongitude: -3.7038,
 
-  // Minutos entre refrescos de caché de clima
+  
   weatherCacheMinutes: 30,
 
-  // Límites de visualización
+  
   maxEventsLarge: 6,
   maxEventsMedium: 3,
   maxRemindersLarge: 4,
   maxRemindersMedium: 2,
 
-  // Sistema métrico (true = °C, km/h; false = °F, mph)
+  
   useMetric: true,
 
-  // Tiempo máximo de espera para APIs externas (segundos)
+  
   apiTimeout: 6,
 
-  // Tema: "auto" | "dark" | "light"
+  
   theme: "auto",
 };
 
-// ──────────────────────────────────────────────────────────────────────────────
-// PALETA DE COLORES — Diseño nativo iOS con modo oscuro como base
-// ──────────────────────────────────────────────────────────────────────────────
-
 const C = {
-  // Gradientes de fondo según momento del día / clima
-  gradientMorning: [new Color("#1a1b41"), new Color("#2d1b4e")],   // amanecer
-  gradientAfternoon: [new Color("#0f2027"), new Color("#203a43")], // día
-  gradientEvening: [new Color("#1a0a2e"), new Color("#16213e")],   // atardecer
-  gradientNight: [new Color("#090a0f"), new Color("#0a0a1a")],     // noche
-  gradientRain: [new Color("#1b1b2f"), new Color("#2d2d44")],      // lluvia
-  gradientSnow: [new Color("#1e2a3a"), new Color("#2a3a4a")],      // nieve
+  
+  gradientMorning: [new Color("#1a1b41"), new Color("#2d1b4e")],   
+  gradientAfternoon: [new Color("#0f2027"), new Color("#203a43")], 
+  gradientEvening: [new Color("#1a0a2e"), new Color("#16213e")],   
+  gradientNight: [new Color("#090a0f"), new Color("#0a0a1a")],     
+  gradientRain: [new Color("#1b1b2f"), new Color("#2d2d44")],      
+  gradientSnow: [new Color("#1e2a3a"), new Color("#2a3a4a")],      
 
-  // Superficies
+  
   cardBg: new Color("#ffffff", 0.07),
   cardBgAlt: new Color("#ffffff", 0.04),
   cardBorder: new Color("#ffffff", 0.06),
 
-  // Texto
+  
   text: Color.white(),
   textDim: new Color("#ffffff", 0.65),
   textMuted: new Color("#ffffff", 0.35),
   textUltraMuted: new Color("#ffffff", 0.18),
 
-  // Acentos
+  
   accentBlue: new Color("#5e5ce6"),
   accentBlueDim: new Color("#5e5ce6", 0.25),
   accentGreen: new Color("#34c759"),
@@ -100,13 +58,9 @@ const C = {
   accentCyan: new Color("#64d2ff"),
   accentPurple: new Color("#af52de"),
 
-  // Separadores
+  
   divider: new Color("#ffffff", 0.07),
 };
-
-// ──────────────────────────────────────────────────────────────────────────────
-// MAPA WMO → SF SYMBOLS + COLOR (Códigos de tiempo Open-Meteo)
-// ──────────────────────────────────────────────────────────────────────────────
 
 const WMO_MAP = {
   0:  { sym: "sun.max.fill",             color: C.accentOrange,  label: "Despejado" },
@@ -141,10 +95,6 @@ const WMO_MAP = {
 
 const WMO_DEFAULT = { sym: "questionmark.circle.fill", color: C.textDim, label: "Desconocido" };
 
-// ──────────────────────────────────────────────────────────────────────────────
-// CITAS INSPIRADORAS LOCALES (fallback offline + arranque rápido)
-// ──────────────────────────────────────────────────────────────────────────────
-
 const LOCAL_QUOTES = [
   { text: "El único modo de hacer un gran trabajo es amar lo que haces.",   author: "Steve Jobs" },
   { text: "La creatividad es la inteligencia divirtiéndose.",               author: "Albert Einstein" },
@@ -167,10 +117,6 @@ const LOCAL_QUOTES = [
   { text: "Las grandes cosas nunca vienen de las zonas de confort.",       author: "Anónimo" },
   { text: "El único imposible es aquello que no intentas.",                author: "Anónimo" },
 ];
-
-// ──────────────────────────────────────────────────────────────────────────────
-// CACHE MANAGER  (FileManager iCloud/local)
-// ──────────────────────────────────────────────────────────────────────────────
 
 class CacheManager {
   constructor(name) {
@@ -213,21 +159,17 @@ class CacheManager {
   }
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// OBTENER LOCALIZACIÓN
-// ──────────────────────────────────────────────────────────────────────────────
-
 async function getLocation(widgetParam) {
-  // Si el usuario pasó coordenadas como parámetro del widget
+  
   if (widgetParam) {
-    const parts = widgetParam.split("|")[0].trim(); // ignora huso horario si existe
+    const parts = widgetParam.split("|")[0].trim(); 
     const coords = parts.split(",").map(Number);
     if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
       return { latitude: coords[0], longitude: coords[1], source: "param" };
     }
   }
 
-  // Intentar geolocalización por IP (fallback rápido para widgets)
+  
   try {
     const req = new Request("http://ip-api.com/json?fields=lat,lon");
     req.timeoutInterval = 3;
@@ -236,20 +178,16 @@ async function getLocation(widgetParam) {
       return { latitude: data.lat, longitude: data.lon, source: "ip" };
     }
   } catch {
-    // Silencioso
+    
   }
 
-  // Usar coordenadas por defecto
+  
   return {
     latitude: CONFIG.defaultLatitude,
     longitude: CONFIG.defaultLongitude,
     source: "default",
   };
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// FETCH: CLIMA  (Open-Meteo, sin API key)
-// ──────────────────────────────────────────────────────────────────────────────
 
 async function fetchWeather(lat, lon, cache) {
   const cacheKey = `weather_${lat.toFixed(2)}_${lon.toFixed(2)}`;
@@ -282,10 +220,6 @@ async function fetchWeather(lat, lon, cache) {
   }
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// FETCH: EVENTOS DE CALENDARIO
-// ──────────────────────────────────────────────────────────────────────────────
-
 async function fetchEvents() {
   try {
     const calendars = await Calendar.forEvents();
@@ -299,7 +233,7 @@ async function fetchEvents() {
     if (!events) return [];
 
     return events
-      .filter(e => !e.isAllDay) // filtramos eventos de día completo para no saturar
+      .filter(e => !e.isAllDay) 
       .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
       .slice(0, CONFIG.maxEventsLarge);
   } catch (err) {
@@ -307,10 +241,6 @@ async function fetchEvents() {
     return [];
   }
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// FETCH: RECORDATORIOS PENDIENTES
-// ──────────────────────────────────────────────────────────────────────────────
 
 async function fetchReminders() {
   try {
@@ -338,12 +268,8 @@ async function fetchReminders() {
   }
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// FETCH: CITA INSPIRADORA
-// ──────────────────────────────────────────────────────────────────────────────
-
 async function fetchQuote() {
-  // Intentar API externa
+  
   try {
     const req = new Request("https://api.quotable.io/random?maxLength=120");
     req.timeoutInterval = 3;
@@ -352,22 +278,18 @@ async function fetchQuote() {
       return { text: data.content, author: data.author };
     }
   } catch {
-    // Silencioso, usar local
+    
   }
 
-  // Fallback local
+  
   const idx = Math.floor(Math.random() * LOCAL_QUOTES.length);
   return LOCAL_QUOTES[idx];
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// UTILIDADES DE FORMATO
-// ──────────────────────────────────────────────────────────────────────────────
-
 function fmtTemp(temp) {
   if (temp === undefined || temp === null) return "--°";
   const unit = CONFIG.useMetric ? "°C" : "°F";
-  // Open-Meteo devuelve siempre °C; convertimos si se requiere °F
+  
   const value = CONFIG.useMetric ? temp : (temp * 9/5) + 32;
   return Math.round(value) + unit;
 }
@@ -387,7 +309,7 @@ function fmtTime(date) {
 
 function fmtHour(date) {
   if (!date || !(date instanceof Date) || isNaN(date)) return "";
-  // Formato tipo "14:30"
+  
   const h = String(date.getHours()).padStart(2, "0");
   const m = String(date.getMinutes()).padStart(2, "0");
   return `${h}:${m}`;
@@ -406,11 +328,11 @@ function getGradient(weatherCode, date) {
   const isNight = hour < 6 || hour >= 20;
   const code = weatherCode !== undefined ? weatherCode : 0;
 
-  // Priorizar clima sobre hora del día
-  if (code >= 95) return C.gradientRain;       // Tormenta
-  if (code >= 71) return C.gradientSnow;        // Nieve
-  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return C.gradientRain; // Lluvia
-  if ((code >= 45 && code <= 48)) return C.gradientRain; // Niebla
+  
+  if (code >= 95) return C.gradientRain;       
+  if (code >= 71) return C.gradientSnow;        
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return C.gradientRain; 
+  if ((code >= 45 && code <= 48)) return C.gradientRain; 
 
   if (isNight) return C.gradientNight;
   if (hour >= 6 && hour < 12) return C.gradientMorning;
@@ -427,10 +349,6 @@ function shortenTitle(title, maxLen) {
 function getWeatherInfo(code) {
   return WMO_MAP[code] || WMO_DEFAULT;
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// CONSTRUCTOR DE WIDGET — FALLBACK
-// ──────────────────────────────────────────────────────────────────────────────
 
 function createErrorWidget(message) {
   const widget = new ListWidget();
@@ -462,13 +380,9 @@ function createErrorWidget(message) {
   retry.centerAlignText();
 
   widget.url = "scriptable:///open/" + encodeURIComponent(Script.name());
-  widget.refreshAfterDate = new Date(Date.now() + 600000); // 10 min
+  widget.refreshAfterDate = new Date(Date.now() + 600000); 
   return widget;
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// CONSTRUCTOR —  WIDGET SMALL
-// ──────────────────────────────────────────────────────────────────────────────
 
 function buildSmall(widget, weather, events, reminders, quote, locationName) {
   const bg = getGradient(weather?.code, new Date());
@@ -477,7 +391,7 @@ function buildSmall(widget, weather, events, reminders, quote, locationName) {
   grad.locations = [0, 1];
   widget.backgroundGradient = grad;
 
-  // ── Cabecera: fecha ──
+  
   const header = widget.addStack();
   header.layoutHorizontally();
   header.addSpacer();
@@ -502,7 +416,7 @@ function buildSmall(widget, weather, events, reminders, quote, locationName) {
 
   widget.addSpacer(10);
 
-  // ── Siguiente evento ──
+  
   if (events && events.length > 0) {
     const ev = events[0];
     const evStack = widget.addStack();
@@ -535,7 +449,7 @@ function buildSmall(widget, weather, events, reminders, quote, locationName) {
 
   widget.addSpacer(6);
 
-  // ── Clima ──
+  
   if (weather) {
     const wi = getWeatherInfo(weather.code);
     const wStack = widget.addStack();
@@ -565,7 +479,7 @@ function buildSmall(widget, weather, events, reminders, quote, locationName) {
     wStack.addSpacer(4);
   }
 
-  // ── Pie: actualización ──
+  
   widget.addSpacer(4);
   const footer = widget.addStack();
   footer.layoutHorizontally();
@@ -576,10 +490,6 @@ function buildSmall(widget, weather, events, reminders, quote, locationName) {
   footer.addSpacer();
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// CONSTRUCTOR —  WIDGET MEDIUM
-// ──────────────────────────────────────────────────────────────────────────────
-
 function buildMedium(widget, weather, events, reminders, quote, locationName) {
   const bg = getGradient(weather?.code, new Date());
   const grad = new LinearGradient();
@@ -588,12 +498,12 @@ function buildMedium(widget, weather, events, reminders, quote, locationName) {
   widget.backgroundGradient = grad;
   widget.setPadding(14, 14, 14, 14);
 
-  // ── Fila superior: Fecha + Clima ──
+  
   const topRow = widget.addStack();
   topRow.layoutHorizontally();
   topRow.centerAlignContent();
 
-  // Fecha
+  
   const dateStack = topRow.addStack();
   dateStack.layoutVertically();
 
@@ -607,7 +517,7 @@ function buildMedium(widget, weather, events, reminders, quote, locationName) {
 
   topRow.addSpacer();
 
-  // Clima
+  
   if (weather) {
     const wi = getWeatherInfo(weather.code);
     const wStack = topRow.addStack();
@@ -637,7 +547,7 @@ function buildMedium(widget, weather, events, reminders, quote, locationName) {
 
   widget.addSpacer(10);
 
-  // ── Fila media: Eventos (hasta 3) ──
+  
   if (events && events.length > 0) {
     const evSection = widget.addStack();
     evSection.layoutVertically();
@@ -651,7 +561,7 @@ function buildMedium(widget, weather, events, reminders, quote, locationName) {
       evRow.cornerRadius = 8;
       evRow.setPadding(6, 10, 6, 10);
 
-      // Indicador de color del calendario
+      
       const dot = evRow.addText("●");
       dot.font = Font.systemFont(9);
       dot.textColor = ev.calendar?.color || C.accentBlue;
@@ -660,13 +570,13 @@ function buildMedium(widget, weather, events, reminders, quote, locationName) {
 
       const evContent = evRow.addStack();
       evContent.layoutVertically();
-      // El contenido se expande automáticamente
+      
 
-      // Para el título, usamos addText y permitimos que fluya
+      
       const titleRow = evContent.addStack();
       titleRow.layoutHorizontally();
 
-      // El addText no soporta truncamiento automático, así que lo hacemos manual
+      
       const title = titleRow.addText(shortenTitle(ev.title, 22));
       title.font = Font.systemFont(12);
       title.textColor = C.text;
@@ -688,7 +598,7 @@ function buildMedium(widget, weather, events, reminders, quote, locationName) {
 
   widget.addSpacer(6);
 
-  // ── Cita breve ──
+  
   if (quote) {
     const qStack = widget.addStack();
     qStack.layoutHorizontally();
@@ -711,13 +621,9 @@ function buildMedium(widget, weather, events, reminders, quote, locationName) {
     qStack.addSpacer(4);
   }
 
-  // Refresco
-  widget.refreshAfterDate = new Date(Date.now() + 1800000); // 30 min
+  
+  widget.refreshAfterDate = new Date(Date.now() + 1800000); 
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// CONSTRUCTOR —  WIDGET LARGE
-// ──────────────────────────────────────────────────────────────────────────────
 
 function buildLarge(widget, weather, events, reminders, quote, locationName) {
   const bg = getGradient(weather?.code, new Date());
@@ -727,9 +633,9 @@ function buildLarge(widget, weather, events, reminders, quote, locationName) {
   widget.backgroundGradient = grad;
   widget.setPadding(14, 14, 14, 14);
 
-  // ════════════════════════════════════════════════════════════
-  // CABECERA: Fecha + Hora + Clima
-  // ════════════════════════════════════════════════════════════
+  
+  
+  
   const header = widget.addStack();
   header.layoutHorizontally();
   header.centerAlignContent();
@@ -747,7 +653,7 @@ function buildLarge(widget, weather, events, reminders, quote, locationName) {
 
   header.addSpacer();
 
-  // Bloque clima
+  
   if (weather) {
     const wi = getWeatherInfo(weather.code);
     const wBlock = header.addStack();
@@ -776,7 +682,7 @@ function buildLarge(widget, weather, events, reminders, quote, locationName) {
 
     wBlock.addSpacer(6);
 
-    // Info extra
+    
     const wExtra = wBlock.addStack();
     wExtra.layoutVertically();
     wExtra.centerAlignContent();
@@ -794,9 +700,9 @@ function buildLarge(widget, weather, events, reminders, quote, locationName) {
 
   widget.addSpacer(12);
 
-  // ════════════════════════════════════════════════════════════
-  // SECCIÓN: PRÓXIMOS EVENTOS
-  // ════════════════════════════════════════════════════════════
+  
+  
+  
   if (events && events.length > 0) {
     const secHeader = widget.addStack();
     secHeader.layoutHorizontally();
@@ -829,7 +735,7 @@ function buildLarge(widget, weather, events, reminders, quote, locationName) {
       evRow.cornerRadius = 9;
       evRow.setPadding(7, 10, 7, 10);
 
-      // Barra de color izquierda
+      
       const bar = evRow.addStack();
       bar.size = new Size(3, 24);
       bar.backgroundColor = ev.calendar?.color || C.accentBlue;
@@ -867,9 +773,9 @@ function buildLarge(widget, weather, events, reminders, quote, locationName) {
 
   widget.addSpacer(8);
 
-  // ════════════════════════════════════════════════════════════
-  // SECCIÓN: RECORDATORIOS
-  // ════════════════════════════════════════════════════════════
+  
+  
+  
   if (reminders && reminders.length > 0) {
     const secHeader2 = widget.addStack();
     secHeader2.layoutHorizontally();
@@ -922,7 +828,7 @@ function buildLarge(widget, weather, events, reminders, quote, locationName) {
         rDue.textColor = C.textDim;
       }
 
-      // Prioridad
+      
       if (r.priority && r.priority > 0) {
         rRow.addSpacer();
         const prio = rRow.addText(r.priority >= 2 ? "‼️" : "❗");
@@ -937,9 +843,9 @@ function buildLarge(widget, weather, events, reminders, quote, locationName) {
 
   widget.addSpacer(8);
 
-  // ════════════════════════════════════════════════════════════
-  // SECCIÓN: CITA INSPIRADORA
-  // ════════════════════════════════════════════════════════════
+  
+  
+  
   if (quote) {
     const qCard = widget.addStack();
     qCard.layoutHorizontally();
@@ -976,7 +882,7 @@ function buildLarge(widget, weather, events, reminders, quote, locationName) {
     qCard.addSpacer(4);
   }
 
-  // ── Pie de página ──
+  
   widget.addSpacer(6);
   const footer = widget.addStack();
   footer.layoutHorizontally();
@@ -998,12 +904,8 @@ function buildLarge(widget, weather, events, reminders, quote, locationName) {
   timeLabel.font = Font.systemFont(8);
   timeLabel.textColor = C.textUltraMuted;
 
-  widget.refreshAfterDate = new Date(Date.now() + 1800000); // 30 min
+  widget.refreshAfterDate = new Date(Date.now() + 1800000); 
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// UTILIDADES DE FECHAS / TEXTOS
-// ──────────────────────────────────────────────────────────────────────────────
 
 function getFullDateString() {
   const df = new DateFormatter();
@@ -1054,19 +956,12 @@ function formatEventDuration(event) {
   return fmtDurationMinutes(ms);
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// SF SYMBOLS EN SCRIPTABLE
-// Scriptable no tiene una API directa para SF Symbols en texto,
-// pero podemos usar el carácter Unicode de SFSymbol (iOS 16+)
-// o aproximaciones con emojis/Unicode.
-// ──────────────────────────────────────────────────────────────────────────────
-
 function getSFSymbol(name, size) {
-  // Scriptable no renderiza SF Symbols directamente como texto.
-  // En su lugar, usamos emojis y caracteres Unicode que se ven bien
-  // en el widget. Para SF Symbols reales, se necesitaría SFSymbol.named()
-  // que devuelve una imagen, no texto. Pero como addImage() es más complejo,
-  // usamos aproximaciones visuales atractivas.
+  
+  
+  
+  
+  
   const fallback = {
     "sun.max.fill": "☀️",
     "sun.min.fill": "🌤️",
@@ -1093,23 +988,19 @@ function getSFSymbol(name, size) {
   return fallback[name] || "●";
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// PUNTO DE ENTRADA PRINCIPAL
-// ──────────────────────────────────────────────────────────────────────────────
-
 async function run() {
   const widget = new ListWidget();
   const params = (args.widgetParameter || "").trim();
   const family = config.widgetFamily || "medium";
 
   try {
-    // ── 1. Localización ──
+    
     const loc = await getLocation(params);
     const locationName = loc.source === "param"
       ? params.split("|")[0].trim()
       : `${loc.latitude.toFixed(2)}, ${loc.longitude.toFixed(2)}`;
 
-    // ── 2. Datos en paralelo ──
+    
     const cache = new CacheManager("daily-hub");
     const [weather, events, reminders, quote] = await Promise.all([
       fetchWeather(loc.latitude, loc.longitude, cache),
@@ -1118,7 +1009,7 @@ async function run() {
       fetchQuote(),
     ]);
 
-    // ── 3. Construir según tamaño ──
+    
     switch (family) {
       case "small":
         buildSmall(widget, weather, events, reminders, quote, locationName);
@@ -1133,8 +1024,8 @@ async function run() {
         buildMedium(widget, weather, events, reminders, quote, locationName);
     }
 
-    // ── 4. Configuración global ──
-    // Al tocar el widget, abre la app de Calendario
+    
+    
     widget.url = "calshow://";
 
   } catch (err) {
@@ -1143,17 +1034,13 @@ async function run() {
     return createErrorWidget(err.message);
   }
 
-  // ── 5. Presentar ──
+  
   if (config.runsInWidget) {
     Script.setWidget(widget);
   } else {
     widget.presentMedium();
   }
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// EJECUCIÓN
-// ──────────────────────────────────────────────────────────────────────────────
 
 await run();
 Script.complete();
