@@ -32,7 +32,7 @@ class NebulaDriftWidget {
 
   get dims() {
     const map = { small: { w: 155, h: 155 }, medium: { w: 329, h: 155 }, large: { w: 329, h: 345 } };
-    return map[this.family] || map.medium;
+    return map[this.family] || map['medium'];
   }
 
   formatDate() {
@@ -160,6 +160,12 @@ class NebulaDriftWidget {
   }
 }
 
-const widget = await new NebulaDriftWidget().render();
-Script.setWidget(widget);
+try {
+  const widget = await new NebulaDriftWidget().render();
+  Script.setWidget(widget);
+} catch (e) {
+  const errWidget = new ListWidget();
+  errWidget.addText('Nebula Drift error');
+  Script.setWidget(errWidget);
+}
 Script.complete();
