@@ -43,19 +43,9 @@ class NebulaDriftWidget {
     return `${month} ${day} · ${year}`;
   }
 
-  formatTime() {
-    const h = this.now.getHours();
-    const m = this.now.getMinutes().toString().padStart(2, '0');
-    return `${h}:${m}`;
-  }
-
   pickColor(alpha = 1) {
     const c = this.palette.colors[Math.floor(this.rand() * this.palette.colors.length)];
     return new Color(c, alpha);
-  }
-
-  hexToColor(hex, alpha = 1) {
-    return new Color(hex, alpha);
   }
 
   async render() {
@@ -159,18 +149,12 @@ class NebulaDriftWidget {
     for (let i = 0; i < count; i++) {
       const sx = this.rand() * w;
       const sy = this.rand() * h;
-      const size = 8 + this.rand() * 20;
-      const alpha = 0.06 + this.rand() * 0.08;
-      const c = this.pickColor(alpha);
-      ctx.setFillColor(c);
+      const halfSize = 8 + this.rand() * 20;
+      ctx.setFillColor(this.pickColor(0.06 + this.rand() * 0.08));
       if (this.rand() > 0.5) {
-        ctx.fillEllipse(new Rect(sx - size, sy - size, size * 2, size * 2));
+        ctx.fillEllipse(new Rect(sx - halfSize, sy - halfSize, halfSize * 2, halfSize * 2));
       } else {
-        const rotation = this.rand() * Math.PI * 0.5;
-        ctx.save();
-        ctx.translate(ctx.getImage().size === undefined ? new Point(w, h) : new Point(0, 0));
-        ctx.fillRect(new Rect(sx - size, sy - size, size * 2, size * 2));
-        ctx.restore();
+        ctx.fillRect(new Rect(sx - halfSize, sy - halfSize, halfSize * 2, halfSize * 2));
       }
     }
   }
