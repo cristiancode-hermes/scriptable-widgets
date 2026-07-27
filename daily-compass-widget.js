@@ -2,26 +2,37 @@ const WEEKDAY_NAMES = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Vi
 const MONTH_NAMES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
 async function createWidget() {
-  const widget = new ListWidget();
-  const today = new Date();
-  const dayName = WEEKDAY_NAMES[today.getDay()];
-  const dayNumber = today.getDate();
-  const monthName = MONTH_NAMES[today.getMonth()];
-  const year = today.getFullYear();
+  try {
+    const widget = new ListWidget();
+    const today = new Date();
+    const dayName = WEEKDAY_NAMES[today.getDay()];
+    const dayNumber = today.getDate();
+    const monthName = MONTH_NAMES[today.getMonth()];
+    const year = today.getFullYear();
 
-  const events = await loadTodayEvents();
-  const reminders = await loadAllReminders();
+    const events = await loadTodayEvents();
+    const reminders = await loadAllReminders();
 
-  if (config.widgetFamily === 'small') {
-    buildSmallLayout(widget, dayName, dayNumber, monthName, events, reminders);
-  } else if (config.widgetFamily === 'medium') {
-    buildMediumLayout(widget, dayName, dayNumber, monthName, year, events, reminders);
-  } else {
-    buildLargeLayout(widget, dayName, dayNumber, monthName, year, events, reminders);
+    if (config.widgetFamily === 'small') {
+      buildSmallLayout(widget, dayName, dayNumber, monthName, events, reminders);
+    } else if (config.widgetFamily === 'medium') {
+      buildMediumLayout(widget, dayName, dayNumber, monthName, year, events, reminders);
+    } else {
+      buildLargeLayout(widget, dayName, dayNumber, monthName, year, events, reminders);
+    }
+
+    widget.url = 'scriptable:///open';
+    return widget;
+  } catch (err) {
+    const fallback = new ListWidget();
+    fallback.addSpacer();
+    const msg = fallback.addText('Error al cargar el widget');
+    msg.font = Font.systemFont(14);
+    msg.textColor = new Color('#ff6b6b');
+    msg.centerAlignText();
+    fallback.addSpacer();
+    return fallback;
   }
-
-  widget.url = 'scriptable:///open';
-  return widget;
 }
 
 async function loadTodayEvents() {
