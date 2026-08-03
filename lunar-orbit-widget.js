@@ -106,7 +106,7 @@ function sunCrossing(lat, lon, date, elevationDeg) {
   const obliquity = (23.4393 - 0.00000036 * (julian - 2451545)) * rad
   const declination = Math.asin(Math.sin(obliquity) * Math.sin(eclipticLongitude))
   const latitudeRad = lat * rad
-  const cosH = -(Math.sin(-elevationDeg * rad) - Math.sin(latitudeRad) * Math.sin(declination)) / (Math.cos(latitudeRad) * Math.cos(declination))
+  const cosH = (Math.sin(-elevationDeg * rad) - Math.sin(latitudeRad) * Math.sin(declination)) / (Math.cos(latitudeRad) * Math.cos(declination))
   if (Math.abs(cosH) > 1) {
     return { rise: null, set: null, polar: cosH > 1 ? 'night' : 'day' }
   }
@@ -114,11 +114,8 @@ function sunCrossing(lat, lon, date, elevationDeg) {
   const riseHour = 12 - hourAngle * 180 / Math.PI / 15 - lon / 15
   const setHour = 12 + hourAngle * 180 / Math.PI / 15 - lon / 15
   const buildDate = (hourValue) => {
-    const dt = new Date(date)
-    const hours = Math.floor(hourValue)
-    const minutes = Math.floor((hourValue - hours) * 60)
-    dt.setHours(hours, minutes, 0, 0)
-    return dt
+    const base = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+    return new Date(base + hourValue * 3600000)
   }
   try {
     return { rise: buildDate(riseHour), set: buildDate(setHour), polar: null }
