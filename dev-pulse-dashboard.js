@@ -120,6 +120,7 @@ function addRepoRow(stack, repo, index, width) {
   row.backgroundColor = C.card;
   row.cornerRadius = 8;
   row.setPadding(6, 8, 6, 8);
+  row.url = repo.html_url;
 
   const rankLabel = row.addText("#" + (index + 1));
   rankLabel.font = Font.boldSystemFont(9);

@@ -219,11 +219,24 @@ class CreativeMuseWidget {
   }
 }
 
-const muse = new CreativeMuseWidget();
-const widget = await muse.render();
-if (config.runsInWidget) {
-  Script.setWidget(widget);
-} else {
-  widget.presentMedium();
+try {
+  const muse = new CreativeMuseWidget();
+  const widget = await muse.render();
+  if (config.runsInWidget) {
+    Script.setWidget(widget);
+  } else {
+    widget.presentMedium();
+  }
+} catch (e) {
+  const errWidget = new ListWidget();
+  const bg = new LinearGradient();
+  bg.colors = [new Color('#1a1a2e'), new Color('#0f0c29')];
+  bg.locations = [0, 1];
+  errWidget.backgroundGradient = bg;
+  errWidget.addText('⚠️ Widget Error');
+  errWidget.addText('Tap to retry');
+  errWidget.url = 'scriptable:///open/' + encodeURIComponent(Script.name());
+  errWidget.refreshAfterDate = new Date(Date.now() + 600000);
+  Script.setWidget(errWidget);
 }
 Script.complete();

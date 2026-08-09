@@ -4,16 +4,15 @@ const STREAK_EMOJI = '🔥'
 const EMPTY_EMOJI = '⚪'
 const DONE_EMOJI = '✅'
 const COLORS = {
-  background: Color.dynamic(new Color('1a1a2e'), new Color('0d0d1a')),
-  card: Color.dynamic(new Color('16213e'), new Color('1a1a2e')),
-  accent: new Color('e94560'),
-  accentDim: new Color('e94560', 0.3),
-  text: Color.white(),
-  secondary: new Color('a0a0b0'),
-  success: new Color('2ecc71'),
-  warning: new Color('f39c12'),
-  streak: new Color('ff6b35'),
-  muted: new Color('333355'),
+  background: new Color('#1a1a2e'),
+  card: new Color('#16213e'),
+  accent: new Color('#e94560'),
+  accentDim: new Color('#e94560', 0.3),
+  secondary: new Color('#a0a0b0'),
+  success: new Color('#2ecc71'),
+  warning: new Color('#f39c12'),
+  streak: new Color('#ff6b35'),
+  muted: new Color('#333355'),
 }
 
 async function run() {

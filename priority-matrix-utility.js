@@ -58,26 +58,26 @@ const PriorityMatrix = {
 
 const QuadrantColors = {
   'urgent-important': {
-    bg: new Color('1C1C1E'),
-    accent: new Color('FF453A'),
+    bg: new Color('#1C1C1E'),
+    accent: new Color('#FF453A'),
     label: 'Do First',
     icon: 'exclamationmark.circle.fill'
   },
   'not-urgent-important': {
-    bg: new Color('1C1C1E'),
-    accent: new Color('30D158'),
+    bg: new Color('#1C1C1E'),
+    accent: new Color('#30D158'),
     label: 'Schedule',
     icon: 'calendar.circle.fill'
   },
   'urgent-not-important': {
-    bg: new Color('1C1C1E'),
-    accent: new Color('FF9F0A'),
+    bg: new Color('#1C1C1E'),
+    accent: new Color('#FF9F0A'),
     label: 'Delegate',
     icon: 'person.crop.circle.fill'
   },
   'not-urgent-not-important': {
-    bg: new Color('1C1C1E'),
-    accent: new Color('64D2FF'),
+    bg: new Color('#1C1C1E'),
+    accent: new Color('#64D2FF'),
     label: 'Eliminate',
     icon: 'trash.circle.fill'
   }
@@ -89,10 +89,10 @@ async function showMain() {
 
   const header = new UITableRow();
   header.height = 60;
-  header.backgroundColor = new Color('000000');
+  header.backgroundColor = new Color('#000000');
   const titleCell = header.addText('Priority Matrix', 'Eisenhower Method', '');
   titleCell.titleColor = Color.white();
-  titleCell.subtitleColor = new Color('8E8E93');
+  titleCell.subtitleColor = new Color('#8E8E93');
   nav.addRow(header);
 
   for (const [key, config] of Object.entries(QuadrantColors)) {
@@ -104,7 +104,7 @@ async function showMain() {
     const count = PriorityMatrix.getByQuadrant(key).length;
     const icon = row.addText(config.label, `${count} tasks`, '');
     icon.titleColor = config.accent;
-    icon.subtitleColor = new Color('8E8E93');
+    icon.subtitleColor = new Color('#8E8E93');
 
     row.onSelect = async () => {
       await showQuadrant(key);
@@ -116,9 +116,9 @@ async function showMain() {
   const doneTasks = PriorityMatrix.tasks.filter(t => t.done).length;
   const statsRow = new UITableRow();
   statsRow.height = 40;
-  statsRow.backgroundColor = new Color('1C1C1E');
+  statsRow.backgroundColor = new Color('#1C1C1E');
   const statsCell = statsRow.addText(`Total: ${allTasks}  |  Done: ${doneTasks}  |  Pending: ${allTasks - doneTasks}`);
-  statsCell.titleColor = new Color('8E8E93');
+  statsCell.titleColor = new Color('#8E8E93');
   statsCell.titleFont = Font.systemFont(13);
   nav.addRow(statsRow);
 
@@ -126,7 +126,7 @@ async function showMain() {
 
   const addButton = new UITableRow();
   addButton.height = 50;
-  addButton.backgroundColor = new Color('2C2C2E');
+  addButton.backgroundColor = new Color('#2C2C2E');
   addButton.dismissOnSelect = true;
   addButton.onSelect = async () => {
     await showAddTask();
@@ -141,7 +141,7 @@ async function showMain() {
 
   const resetRow = new UITableRow();
   resetRow.height = 44;
-  resetRow.backgroundColor = new Color('2C2C2E');
+  resetRow.backgroundColor = new Color('#2C2C2E');
   resetRow.dismissOnSelect = true;
   resetRow.onSelect = async () => {
     const alert = new Alert();
@@ -173,19 +173,19 @@ async function showQuadrant(key) {
 
   const header = new UITableRow();
   header.height = 60;
-  header.backgroundColor = new Color('000000');
+  header.backgroundColor = new Color('#000000');
   const icon = header.addText(config.label, `${tasks.length} pending · ${done.length} done`, '');
   icon.titleColor = config.accent;
-  icon.subtitleColor = new Color('8E8E93');
+  icon.subtitleColor = new Color('#8E8E93');
   nav.addRow(header);
 
   if (tasks.length === 0 && done.length === 0) {
     const emptyRow = new UITableRow();
     emptyRow.height = 80;
-    emptyRow.backgroundColor = new Color('1C1C1E');
+    emptyRow.backgroundColor = new Color('#1C1C1E');
     const emptyCell = emptyRow.addText('No tasks yet', 'Tap + to add one', '');
-    emptyCell.titleColor = new Color('8E8E93');
-    emptyCell.subtitleColor = new Color('636366');
+    emptyCell.titleColor = new Color('#8E8E93');
+    emptyCell.subtitleColor = new Color('#636366');
     emptyCell.centerAligned();
     nav.addRow(emptyRow);
   }
@@ -193,7 +193,7 @@ async function showQuadrant(key) {
   for (const task of tasks) {
     const row = new UITableRow();
     row.height = 52;
-    row.backgroundColor = new Color('1C1C1E');
+    row.backgroundColor = new Color('#1C1C1E');
     row.dismissOnSelect = false;
 
     const circleCell = row.addButton('');
@@ -207,7 +207,7 @@ async function showQuadrant(key) {
     titleCell.widthWeight = 80;
 
     const delCell = row.addButton('✕');
-    delCell.titleColor = new Color('FF453A');
+    delCell.titleColor = new Color('#FF453A');
     delCell.titleFont = Font.systemFont(18);
     delCell.widthWeight = 12;
 
@@ -230,11 +230,11 @@ async function showQuadrant(key) {
   for (const task of done) {
     const row = new UITableRow();
     row.height = 44;
-    row.backgroundColor = new Color('1C1C1E');
+    row.backgroundColor = new Color('#1C1C1E');
     row.dismissOnSelect = false;
 
     const doneCell = row.addText('✓ ' + task.title);
-    doneCell.titleColor = new Color('48484A');
+    doneCell.titleColor = new Color('#48484A');
     doneCell.titleFont = Font.systemFont(15);
 
     row.onSelect = async () => {
@@ -248,13 +248,13 @@ async function showQuadrant(key) {
 
   const backRow = new UITableRow();
   backRow.height = 44;
-  backRow.backgroundColor = new Color('2C2C2E');
+  backRow.backgroundColor = new Color('#2C2C2E');
   backRow.dismissOnSelect = true;
   backRow.onSelect = async () => {
     await showMain();
   };
   const backCell = backRow.addText('← Back');
-  backCell.titleColor = new Color('8E8E93');
+  backCell.titleColor = new Color('#8E8E93');
   backCell.centerAligned();
   nav.addRow(backRow);
 

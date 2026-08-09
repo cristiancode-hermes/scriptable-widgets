@@ -112,7 +112,6 @@ const DataStore = {
         return this._migrate(data);
       }
     } catch (e) {
-      console.warn("DataStore.load error: " + e.message);
     }
     return new AppData();
   },
@@ -123,7 +122,6 @@ const DataStore = {
       this._fm.writeString(this.filePath, JSON.stringify(data, null, 2));
       return true;
     } catch (e) {
-      console.error("DataStore.save error: " + e.message);
       return false;
     }
   },
@@ -178,7 +176,6 @@ const Notifier = {
       await notif.schedule();
       return true;
     } catch (e) {
-      console.warn("Notifier.schedule error: " + e.message);
       return false;
     }
   },
@@ -193,7 +190,6 @@ const Notifier = {
       await notif.schedule();
       return true;
     } catch (e) {
-      console.warn("Notifier.sendImmediate error: " + e.message);
       return false;
     }
   },
@@ -1598,7 +1594,6 @@ async function main() {
     }
   } catch (error) {
     
-    console.error("Critical error: " + error.message);
 
     const errorWidget = new ListWidget();
     errorWidget.backgroundColor = new Color("#1C1C1E");

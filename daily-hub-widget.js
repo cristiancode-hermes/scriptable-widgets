@@ -215,7 +215,6 @@ async function fetchWeather(lat, lon, cache) {
     cache.write(cacheKey, result);
     return result;
   } catch (err) {
-    console.error("Weather fetch failed: " + err.message);
     return null;
   }
 }
@@ -237,7 +236,6 @@ async function fetchEvents() {
       .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
       .slice(0, CONFIG.maxEventsLarge);
   } catch (err) {
-    console.error("Calendar fetch failed: " + err.message);
     return [];
   }
 }
@@ -263,7 +261,6 @@ async function fetchReminders() {
       })
       .slice(0, CONFIG.maxRemindersLarge);
   } catch (err) {
-    console.error("Reminders fetch failed: " + err.message);
     return [];
   }
 }
@@ -1029,8 +1026,6 @@ async function run() {
     widget.url = "calshow://";
 
   } catch (err) {
-    console.error("Daily Hub fatal: " + err.message);
-    console.error(err.stack || "No stack trace");
     return createErrorWidget(err.message);
   }
 
