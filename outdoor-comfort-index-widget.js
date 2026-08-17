@@ -237,7 +237,7 @@ async function loadWeather(lat, lon) {
     forecast_days: "1",
   });
   const json = await fetchJson(url);
-  if (!json) return null;
+  if (!json || (!json.current && !json.daily)) return null;
   const current = json.current || {};
   const daily = json.daily || {};
   const payload = {
